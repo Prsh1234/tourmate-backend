@@ -1,5 +1,6 @@
 package com.example.tourmatebackend.model;
 
+import com.example.tourmatebackend.states.Role;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,13 +19,23 @@ public class User {
     private String firstName;
 
     private String lastName;
-
     @Lob
     @Column(name = "profilePic", columnDefinition = "LONGBLOB")
     private byte[] profilePic;
 
     @Enumerated(EnumType.STRING)   // store as text ("USER", "ADMIN")
     private Role role = Role.TRAVELLER; // default USER
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Guide guide;
+
+    public Guide getGuide() {
+        return guide;
+    }
+
+    public void setGuide(Guide guide) {
+        this.guide = guide;
+    }
+
 
     public int getId() {
         return id;

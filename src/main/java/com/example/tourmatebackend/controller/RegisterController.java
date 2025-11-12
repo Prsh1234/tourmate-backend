@@ -1,4 +1,4 @@
-package com.example.tourmatebackend.repository;
+package com.example.tourmatebackend.controller;
 
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.UserRepository;
@@ -24,21 +24,19 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<?> postSignup(@RequestBody User u) throws IOException {
-        // Check if email already exists
+
         Optional<User> existingUser = uRepo.findByEmail(u.getEmail());
         if (existingUser.isPresent()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", "Email already signed up"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already signed up"));
         }
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         u.setPassword(encoder.encode(u.getPassword()));
-        // Save user (you can hash password here if needed)
         User savedUser = uRepo.save(u);
+
         if (savedUser != null) {
             String token = jwtUtil.generateToken(savedUser.getEmail());
 
-            // Return token to frontend
             return ResponseEntity.ok(Map.of(
                     "token", token,
                     "email", savedUser.getEmail(),
@@ -46,10 +44,7 @@ public class RegisterController {
                     "lastName", savedUser.getLastName()
             ));
         } else {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", "User registration failed"));
+            return ResponseEntity.badRequest().body(Map.of("error", "User registration failed"));
         }
-
     }
 }
