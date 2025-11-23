@@ -19,17 +19,25 @@ public class Guide {
     private String expertise;
     private String bio;
 
-    public Set<Category> getCategories() {
-        return categories;
+    public String getLocation() {
+        return location;
     }
 
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
-    public void setProfilePic(byte[] profilePic) {
-        this.profilePic = profilePic;
+    public double getPrice() {
+        return price;
     }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    private String location;
+
+    private double price;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))
@@ -40,13 +48,7 @@ public class Guide {
     @ElementCollection(targetClass = Language.class)
     @Enumerated(EnumType.STRING)
     private Set<Language> languages;
-    public Set<Language> getLanguages() {
-        return languages;
-    }
 
-    public void setLanguages(Set<Language> languages) {
-        this.languages = languages;
-    }
     @Enumerated(EnumType.STRING)
     private GuideStatus status = GuideStatus.PENDING; // PENDING, APPROVED, REJECTED
 
@@ -111,5 +113,23 @@ public class Guide {
     }
     public void setTours(List<Tour> tours) {
         this.tours = tours;
+    }
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public void setProfilePic(byte[] profilePic) {
+        this.profilePic = profilePic;
+    }
+    public Set<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(Set<Language> languages) {
+        this.languages = languages;
     }
 }

@@ -77,6 +77,8 @@ public class GuideRegisterController {
             data.put("languages",guide.getLanguages());
             data.put("status", guide.getStatus().name());
             data.put("profilePic", guide.getProfilePic());
+            data.put("price", guide.getPrice());
+            data.put("location", guide.getLocation());
             data.put("userId", user.getId());
             data.put("userName", user.getFirstName() + " " + user.getLastName());
             data.put("userEmail", user.getEmail());

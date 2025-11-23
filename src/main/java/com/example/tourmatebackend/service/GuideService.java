@@ -27,6 +27,8 @@ public class GuideService {
         guide.setLanguages(guideRequest.getLanguages());
         guide.setStatus(GuideStatus.PENDING);
         guide.setProfilePic(user.getProfilePic());
+        guide.setPrice(guideRequest.getPrice());
+        guide.setLocation(guideRequest.getLocation());
 
         return guideRepository.save(guide);
     }

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/traveller")
-public class TravellerController {
+public class SearchToursController {
 
     @Autowired
     private TourRepository tourRepository;
