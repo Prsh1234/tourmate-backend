@@ -2,10 +2,12 @@ package com.example.tourmatebackend.model;
 
 import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.GuideStatus;
+import com.example.tourmatebackend.states.Language;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Guide {
@@ -17,11 +19,11 @@ public class Guide {
     private String expertise;
     private String bio;
 
-    public List<Category> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 
@@ -33,7 +35,18 @@ public class Guide {
     @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private List<Category> categories;
+    private Set<Category> categories;
+
+    @ElementCollection(targetClass = Language.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Language> languages;
+    public Set<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(Set<Language> languages) {
+        this.languages = languages;
+    }
     @Enumerated(EnumType.STRING)
     private GuideStatus status = GuideStatus.PENDING; // PENDING, APPROVED, REJECTED
 

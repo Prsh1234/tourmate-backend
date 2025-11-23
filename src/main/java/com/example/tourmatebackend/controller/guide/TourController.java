@@ -63,7 +63,12 @@ public class TourController {
         tour.setEndDate(tourRequest.getEndDate());
         tour.setGuide(guide);
         tour.setStatus(TourStatus.DRAFTED);
-        tour.setCategories(tourRequest.getCategories());
+        if (tourRequest.getCategories() != null) {
+            tour.setCategories(tourRequest.getCategories());
+        }
+        if (tourRequest.getLanguages() != null) {
+            tour.setLanguages(tourRequest.getLanguages());
+        }
         Tour savedTour = tourRepository.save(tour);
 
         return ResponseEntity.ok(Map.of(
@@ -72,6 +77,7 @@ public class TourController {
                 "data", Map.of(
                         "tourId", savedTour.getId(),
                         "categories", savedTour.getCategories(),
+                        "languages",savedTour.getLanguages(),
                         "title", savedTour.getTitle(),
                         "status", savedTour.getStatus().name()
                 )
@@ -168,9 +174,9 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only edit your own tours."));
 
-        if (tour.getStatus() != TourStatus.DRAFTED)
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", "Only drafted tours can be edited."));
+//        if (tour.getStatus() != TourStatus.DRAFTED)
+//            return ResponseEntity.badRequest()
+//                    .body(Map.of("status", "error", "message", "Only drafted tours can be edited."));
 
         tour.setTitle(updatedTour.getTitle());
         tour.setDescription(updatedTour.getDescription());
@@ -178,7 +184,13 @@ public class TourController {
         tour.setPrice(updatedTour.getPrice());
         tour.setStartDate(updatedTour.getStartDate());
         tour.setEndDate(updatedTour.getEndDate());
-        tour.setCategories(updatedTour.getCategories());
+        // Update categories and languages
+        if (updatedTour.getCategories() != null) {
+            tour.setCategories(updatedTour.getCategories());
+        }
+        if (updatedTour.getLanguages() != null) {
+            tour.setLanguages(updatedTour.getLanguages());
+        }
         Tour saved = tourRepository.save(tour);
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -207,9 +219,9 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only delete your own tours."));
 
-        if (tour.getStatus() != TourStatus.DRAFTED)
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", "Only drafted tours can be deleted."));
+//        if (tour.getStatus() != TourStatus.DRAFTED)
+//            return ResponseEntity.badRequest()
+//                    .body(Map.of("status", "error", "message", "Only drafted tours can be deleted."));
 
         tourRepository.delete(tour);
         return ResponseEntity.ok(Map.of("status", "success", "message", "Tour deleted successfully."));

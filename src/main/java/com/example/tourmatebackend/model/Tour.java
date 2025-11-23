@@ -1,6 +1,7 @@
 package com.example.tourmatebackend.model;
 
 import com.example.tourmatebackend.states.Category;
+import com.example.tourmatebackend.states.Language;
 import com.example.tourmatebackend.states.TourStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -43,11 +44,11 @@ public class Tour {
     private User traveller; // The user who booked this tour (optional)
 
 
-    public List<Category> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 
@@ -55,7 +56,19 @@ public class Tour {
     @CollectionTable(name = "tour_categories", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private List<Category> categories;
+    private Set<Category> categories;
+
+    public Set<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(Set<Language> languages) {
+        this.languages = languages;
+    }
+
+    @ElementCollection(targetClass = Language.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Language> languages;
     public int getId() {
         return id;
     }

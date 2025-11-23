@@ -23,7 +23,8 @@ public class GuideService {
         guide.setUser(user);
         guide.setExpertise(guideRequest.getExpertise());
         guide.setBio(guideRequest.getBio());
-        guide.setCategories(guideRequest.getCategories());  // MULTIPLE CATEGORIES
+        guide.setCategories(guideRequest.getCategories());
+        guide.setLanguages(guideRequest.getLanguages());
         guide.setStatus(GuideStatus.PENDING);
         guide.setProfilePic(user.getProfilePic());
 
