@@ -45,6 +45,7 @@ public class AdminGuideController {
             map.put("expertise", g.getExpertise());
             map.put("bio", g.getBio());
             map.put("status", g.getStatus().name());
+            map.put("categories", g.getCategories());
             map.put("userId", g.getUser().getId());
             map.put("userEmail", g.getUser().getEmail());
             map.put("userName", g.getUser().getFirstName() + " " + g.getUser().getLastName());

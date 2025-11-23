@@ -29,7 +29,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
+                        .requestMatchers("/api/traveller/**").authenticated()
+                        .requestMatchers("/api/payment/**").authenticated()
                         // Only authenticated users (any role) can register as guide
                         .requestMatchers("/api/user/**").authenticated()
 
