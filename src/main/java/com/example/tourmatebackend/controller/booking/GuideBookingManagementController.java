@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -102,9 +103,10 @@ public class GuideBookingManagementController {
     // ----------------------------
     // Get all pending booking requests for this guide
     // ----------------------------
-    @GetMapping("/pending")
-    public ResponseEntity<?> getPendingBookings(
+    @GetMapping("/view")
+    public ResponseEntity<?> getGuideBookings(
             @RequestHeader("Authorization") String authHeader,
+            @RequestParam(required = false) String status, // comma-separated statuses
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -116,23 +118,37 @@ public class GuideBookingManagementController {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<GuideBooking> bookingPage = bookingRepository
-                .findByGuideIdAndStatus(user.getGuide().getId(), BookingStatus.PENDING, pageable);
+        Page<GuideBooking> bookingPage;
 
-        List<GuideBookingResponseDTO> pendingBookings = bookingPage.getContent()
+        if (status == null || status.isEmpty()) {
+            // No filter: get all bookings for this guide
+            bookingPage = bookingRepository.findByGuideId(user.getGuide().getId(), pageable);
+        } else {
+            // Filter by one or more statuses
+            List<BookingStatus> statusEnums = Arrays.stream(status.split(","))
+                    .map(String::toUpperCase)
+                    .map(BookingStatus::valueOf)
+                    .toList();
+
+            bookingPage = bookingRepository.findByGuideIdAndStatusIn(user.getGuide().getId(), statusEnums, pageable);
+        }
+
+        List<GuideBookingResponseDTO> bookings = bookingPage.getContent()
                 .stream()
                 .map(GuideBookingResponseDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Pending bookings fetched successfully",
-                "data", pendingBookings,
+                "message", "Bookings fetched successfully",
+                "data", bookings,
                 "currentPage", bookingPage.getNumber(),
-                "totalPages", bookingPage.getTotalPages(),
-                "totalItems", bookingPage.getTotalElements()
+                "pageSize", bookingPage.getSize(),
+                "totalItems", bookingPage.getTotalElements(),
+                "totalPages", bookingPage.getTotalPages()
         ));
     }
+
 
     // --- Helper methods ---
     private User getUserFromToken(String authHeader) {
