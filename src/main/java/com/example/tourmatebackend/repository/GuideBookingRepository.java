@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface GuideBookingRepository extends JpaRepository<GuideBooking, Integer> {
     List<GuideBooking> findByGuideId(int guideId);
-    List<GuideBooking> findByUserId(int userId);
+    Page<GuideBooking> findByUserId(int userId, Pageable pageable);
     Page<GuideBooking> findByGuideIdAndStatus(int guideId, BookingStatus status, Pageable pageable);
 }

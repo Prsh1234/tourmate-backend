@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.Base64;
 
 @RestController
-@RequestMapping("/api/user/guides")
+@RequestMapping("/api/traveller/guides")
 public class SearchGuideController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class SearchGuideController {
     // ============================
     // GET ALL APPROVED GUIDES
     // ============================
-    @GetMapping("/allApproved")
+    @GetMapping("/approvedGuides")
     public ResponseEntity<?> getAllApprovedGuides() {
 
         List<Guide> approvedGuides = guideRepository.findAll()
