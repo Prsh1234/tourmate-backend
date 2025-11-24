@@ -27,17 +27,17 @@ public class Guide {
         this.location = location;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
     private String location;
 
-    private double price;
+    private Double price;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))

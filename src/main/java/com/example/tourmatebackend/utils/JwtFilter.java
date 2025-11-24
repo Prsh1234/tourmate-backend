@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     // Set Spring Security Authentication with ROLE
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
-                                    user.getEmail(),
+                                    user,
                                     null,
                                     List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                             );

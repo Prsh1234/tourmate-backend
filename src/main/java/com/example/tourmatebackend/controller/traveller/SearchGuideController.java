@@ -71,7 +71,7 @@ public class SearchGuideController {
             @RequestParam(required = false, defaultValue = "") String location,
             @RequestParam(required = false, defaultValue = "0") Double minPrice,
             @RequestParam(required = false, defaultValue = "10000000000") Double maxPrice,
-            @RequestParam(required = false, defaultValue = "expertise") String sortBy,
+            @RequestParam(required = false, defaultValue = "price") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortDir,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,

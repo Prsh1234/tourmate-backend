@@ -1,0 +1,15 @@
+package com.example.tourmatebackend.repository;
+
+import com.example.tourmatebackend.model.GuideBooking;
+import com.example.tourmatebackend.states.BookingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface GuideBookingRepository extends JpaRepository<GuideBooking, Integer> {
+    List<GuideBooking> findByGuideId(int guideId);
+    List<GuideBooking> findByUserId(int userId);
+    Page<GuideBooking> findByGuideIdAndStatus(int guideId, BookingStatus status, Pageable pageable);
+}
