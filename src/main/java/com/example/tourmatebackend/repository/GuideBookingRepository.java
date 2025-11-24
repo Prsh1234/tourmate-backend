@@ -12,4 +12,5 @@ public interface GuideBookingRepository extends JpaRepository<GuideBooking, Inte
     List<GuideBooking> findByGuideId(int guideId);
     Page<GuideBooking> findByUserId(int userId, Pageable pageable);
     Page<GuideBooking> findByGuideIdAndStatus(int guideId, BookingStatus status, Pageable pageable);
+    Page<GuideBooking> findByUserIdAndStatusIn(int userId, List<BookingStatus> statuses, Pageable pageable);
 }

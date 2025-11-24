@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,17 +69,31 @@ public class TravellerBookingController {
     @GetMapping("/mybookings")
     public ResponseEntity<?> getTravellerBookings(
             @RequestHeader("Authorization") String authHeader,
+            @RequestParam(required = false) String status, // comma-separated status filter
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         User user = getUserFromToken(authHeader);
-
         Pageable pageable = PageRequest.of(page, size);
-        Page<GuideBooking> bookingPage = bookingRepository.findByUserId(user.getId(), pageable);
+
+        Page<GuideBooking> bookingPage;
+
+        if (status == null || status.isEmpty()) {
+            // No filter: get all bookings
+            bookingPage = bookingRepository.findByUserId(user.getId(), pageable);
+        } else {
+            // Split comma-separated statuses and convert to enums
+            List<BookingStatus> statusEnums = Arrays.stream(status.split(","))
+                    .map(String::toUpperCase)
+                    .map(BookingStatus::valueOf)
+                    .toList();
+
+            bookingPage = bookingRepository.findByUserIdAndStatusIn(user.getId(), statusEnums, pageable);
+        }
 
         List<GuideBookingResponseDTO> bookings = bookingPage.getContent().stream()
                 .map(GuideBookingResponseDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -89,6 +104,7 @@ public class TravellerBookingController {
                 "totalPages", bookingPage.getTotalPages()
         ));
     }
+
 
     // --- Cancel a booking ---
     @PutMapping("/{bookingId}/cancel")
