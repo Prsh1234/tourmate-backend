@@ -1,9 +1,9 @@
 package com.example.tourmatebackend.controller.guide;
 
+import com.example.tourmatebackend.dto.guide.TourResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.repository.TourRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.states.TourStatus;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/guide/tour")
@@ -26,24 +27,44 @@ public class TourController {
     private UserRepository userRepository;
 
     @Autowired
-    private GuideRepository guideRepository;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
-    // ✅ Utility: extract user from JWT token
+    // ==========================
+    // Helper methods
+    // ==========================
     private User getUserFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
         String email = jwtUtil.extractEmail(authHeader.substring(7));
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    // ✅ Utility: verify user is guide
     private boolean isGuide(User user) {
         return user != null && user.getGuide() != null;
     }
 
-    // ✅ 1. Create a new draft tour
+    private TourResponseDTO mapTourToDTO(Tour tour) {
+        TourResponseDTO dto = new TourResponseDTO();
+        dto.setId(tour.getId());
+        dto.setTitle(tour.getTitle());
+        dto.setDescription(tour.getDescription());
+        dto.setLocation(tour.getLocation());
+        dto.setPrice(tour.getPrice());
+        dto.setStartDate(tour.getStartDate());
+        dto.setEndDate(tour.getEndDate());
+        dto.setCategories(tour.getCategories());
+        dto.setLanguages(tour.getLanguages());
+        dto.setStatus(tour.getStatus());
+
+        dto.setGuideId(tour.getGuide().getId());
+        dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
+        dto.setGuideExpertise(tour.getGuide().getExpertise());
+
+        return dto;
+    }
+
+    // ==========================
+    // 1. Create a new draft tour
+    // ==========================
     @PostMapping("/create")
     public ResponseEntity<?> createTour(@RequestHeader("Authorization") String authHeader,
                                         @RequestBody Tour tourRequest) {
@@ -63,28 +84,20 @@ public class TourController {
         tour.setEndDate(tourRequest.getEndDate());
         tour.setGuide(guide);
         tour.setStatus(TourStatus.DRAFTED);
-        if (tourRequest.getCategories() != null) {
-            tour.setCategories(tourRequest.getCategories());
-        }
-        if (tourRequest.getLanguages() != null) {
-            tour.setLanguages(tourRequest.getLanguages());
-        }
-        Tour savedTour = tourRepository.save(tour);
+        if (tourRequest.getCategories() != null) tour.setCategories(tourRequest.getCategories());
+        if (tourRequest.getLanguages() != null) tour.setLanguages(tourRequest.getLanguages());
 
+        Tour savedTour = tourRepository.save(tour);
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour saved as draft successfully.",
-                "data", Map.of(
-                        "tourId", savedTour.getId(),
-                        "categories", savedTour.getCategories(),
-                        "languages",savedTour.getLanguages(),
-                        "title", savedTour.getTitle(),
-                        "status", savedTour.getStatus().name()
-                )
+                "data", mapTourToDTO(savedTour)
         ));
     }
 
-    // ✅ 2. Post a drafted tour (make it public)
+    // ==========================
+    // 2. Post a drafted tour
+    // ==========================
     @PostMapping("/{tourId}/post")
     public ResponseEntity<?> postTour(@RequestHeader("Authorization") String authHeader,
                                       @PathVariable int tourId) {
@@ -117,15 +130,13 @@ public class TourController {
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour posted successfully.",
-                "data", Map.of(
-                        "tourId", tour.getId(),
-                        "title", tour.getTitle(),
-                        "status", tour.getStatus().name()
-                )
+                "data", mapTourToDTO(tour)
         ));
     }
 
-    // ✅ 3. Get all tours of the logged-in guide
+    // ==========================
+    // 3. Get all tours of logged-in guide
+    // ==========================
     @GetMapping("/mytours")
     public ResponseEntity<?> getMyTours(@RequestHeader("Authorization") String authHeader) {
         User user = getUserFromToken(authHeader);
@@ -135,25 +146,16 @@ public class TourController {
         }
 
         List<Tour> tours = tourRepository.findByGuideId(user.getGuide().getId());
-        List<Map<String, Object>> data = new ArrayList<>();
+        List<TourResponseDTO> data = tours.stream()
+                .map(this::mapTourToDTO)
+                .collect(Collectors.toList());
 
-        for (Tour t : tours) {
-            Map<String, Object> tourData = new HashMap<>();
-            tourData.put("id", t.getId());
-            tourData.put("title", t.getTitle());
-            tourData.put("location", t.getLocation());
-            tourData.put("price", t.getPrice());
-            tourData.put("status", t.getStatus().name());
-
-            data.add(tourData);
-        }
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "tours", data
-        ));
+        return ResponseEntity.ok(Map.of("status", "success", "data", data));
     }
-    // ✅ 4. Edit drafted tour
+
+    // ==========================
+    // 4. Edit drafted tour
+    // ==========================
     @PutMapping("/{tourId}/edit")
     public ResponseEntity<?> editTour(@RequestHeader("Authorization") String authHeader,
                                       @PathVariable int tourId,
@@ -174,32 +176,27 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only edit your own tours."));
 
-//        if (tour.getStatus() != TourStatus.DRAFTED)
-//            return ResponseEntity.badRequest()
-//                    .body(Map.of("status", "error", "message", "Only drafted tours can be edited."));
-
         tour.setTitle(updatedTour.getTitle());
         tour.setDescription(updatedTour.getDescription());
         tour.setLocation(updatedTour.getLocation());
         tour.setPrice(updatedTour.getPrice());
         tour.setStartDate(updatedTour.getStartDate());
         tour.setEndDate(updatedTour.getEndDate());
-        // Update categories and languages
-        if (updatedTour.getCategories() != null) {
-            tour.setCategories(updatedTour.getCategories());
-        }
-        if (updatedTour.getLanguages() != null) {
-            tour.setLanguages(updatedTour.getLanguages());
-        }
+        if (updatedTour.getCategories() != null) tour.setCategories(updatedTour.getCategories());
+        if (updatedTour.getLanguages() != null) tour.setLanguages(updatedTour.getLanguages());
+
         Tour saved = tourRepository.save(tour);
+
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour updated successfully.",
-                "data", saved
+                "data", mapTourToDTO(saved)
         ));
     }
 
-    // ✅ 5. Delete drafted tour
+    // ==========================
+    // 5. Delete drafted tour
+    // ==========================
     @DeleteMapping("/{tourId}/delete")
     public ResponseEntity<?> deleteTour(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable int tourId) {
@@ -219,12 +216,7 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only delete your own tours."));
 
-//        if (tour.getStatus() != TourStatus.DRAFTED)
-//            return ResponseEntity.badRequest()
-//                    .body(Map.of("status", "error", "message", "Only drafted tours can be deleted."));
-
         tourRepository.delete(tour);
         return ResponseEntity.ok(Map.of("status", "success", "message", "Tour deleted successfully."));
     }
-
 }

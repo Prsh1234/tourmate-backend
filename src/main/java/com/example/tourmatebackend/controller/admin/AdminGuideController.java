@@ -1,5 +1,7 @@
 package com.example.tourmatebackend.controller.admin;
 
+import com.example.tourmatebackend.dto.admin.GuideDecisionResponseDTO;
+import com.example.tourmatebackend.dto.admin.GuideRequestDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.model.User;
@@ -12,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,84 +31,110 @@ public class AdminGuideController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // List all pending guide requests
-    @GetMapping("/pending")
-    public ResponseEntity<?> getPendingGuides(@RequestHeader("Authorization") String authHeader) {
-
-        List<Guide> pendingGuides = guideRepository.findAll()
-                .stream()
-                .filter(g -> g.getStatus() == GuideStatus.PENDING)
-                .collect(Collectors.toList());
-
-        List<Map<String, Object>> data = pendingGuides.stream().map(g -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("guideId", g.getId());
-            map.put("expertise", g.getExpertise());
-            map.put("bio", g.getBio());
-            map.put("status", g.getStatus().name());
-            map.put("categories", g.getCategories());
-            map.put("languages", g.getLanguages());
-            map.put("userId", g.getUser().getId());
-            map.put("userEmail", g.getUser().getEmail());
-            map.put("userName", g.getUser().getFirstName() + " " + g.getUser().getLastName());
-            return map;
-        }).collect(Collectors.toList());
-
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Pending guide requests",
-                "data", data
-        ));
-    }
-
-    // Approve or reject a guide request
-    @PostMapping("/{guideId}/decision")
-    public ResponseEntity<?> decideGuide(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable int guideId,
-            @RequestParam("action") String action // "approve" or "reject"
-    ) {
-
-
-        Guide guide = guideRepository.findById(guideId).orElse(null);
-        if (guide == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("status", "error", "message", "Guide request not found"));
-        }
-
-        if (action.equalsIgnoreCase("approve")) {
-            guide.setStatus(GuideStatus.APPROVED);
-            guide.getUser().setRole(Role.GUIDE); // <-- Update user role
-        } else if (action.equalsIgnoreCase("reject")) {
-            guide.setStatus(GuideStatus.REJECTED);
-            // Optionally reset role to TRAVELLER if previously changed
-            if (guide.getUser().getRole() == Role.GUIDE) {
-                guide.getUser().setRole(Role.TRAVELLER);
-            }
-        } else {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", "Invalid action. Use 'approve' or 'reject'."));
-        }
-
-        guideRepository.save(guide);
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Guide request " + action + "d successfully",
-                "data", Map.of(
-                        "guideId", guide.getId(),
-                        "status", guide.getStatus().name()
-                )
-        ));
+    // -------------------------
+    // Verify Admin From Token
+    // -------------------------
+    private User extractUserFromToken(String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtUtil.extractEmail(token);
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     private boolean isAdmin(User user) {
         return user != null && user.getRole() == Role.ADMIN;
     }
 
-    private ResponseEntity<Map<String, Object>> forbiddenResponse() {
+    private ResponseEntity<?> unauthorized() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of("status", "error", "message", "You are not authorized to perform this action"));
+                .body(Map.of("status", "error", "message", "You are not authorized"));
+    }
+
+    // -------------------------
+    // Get All Pending Guides
+    // -------------------------
+    @GetMapping("/pending")
+    public ResponseEntity<?> getPendingGuides(@RequestHeader("Authorization") String authHeader) {
+
+        User requester = extractUserFromToken(authHeader);
+        if (!isAdmin(requester)) return unauthorized();
+
+        List<Guide> pendingGuides = guideRepository.findAll()
+                .stream()
+                .filter(g -> g.getStatus() == GuideStatus.PENDING)
+                .collect(Collectors.toList());
+
+        List<GuideRequestDTO> dtoList = pendingGuides.stream().map(g -> {
+            GuideRequestDTO dto = new GuideRequestDTO();
+            dto.setGuideId(g.getId());
+            dto.setExpertise(g.getExpertise());
+            dto.setBio(g.getBio());
+            dto.setStatus(g.getStatus().name());
+            dto.setCategories(g.getCategories());
+            dto.setLanguages(g.getLanguages());
+
+            dto.setUserId(g.getUser().getId());
+            dto.setUserEmail(g.getUser().getEmail());
+            dto.setUserName(g.getUser().getFirstName() + " " + g.getUser().getLastName());
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "status", "success",
+                        "message", "Pending guide requests",
+                        "data", dtoList
+                )
+        );
+    }
+
+    // -------------------------
+    // Approve or Reject Guide
+    // -------------------------
+    @PostMapping("/{guideId}/decision")
+    public ResponseEntity<?> decideGuide(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int guideId,
+            @RequestParam("action") String action
+    ) {
+
+        User requester = extractUserFromToken(authHeader);
+        if (!isAdmin(requester)) return unauthorized();
+
+        Guide guide = guideRepository.findById(guideId).orElse(null);
+        if (guide == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "Guide not found"));
+        }
+
+        if (action.equalsIgnoreCase("approve")) {
+            guide.setStatus(GuideStatus.APPROVED);
+            guide.getUser().setRole(Role.GUIDE);
+
+        } else if (action.equalsIgnoreCase("reject")) {
+            guide.setStatus(GuideStatus.REJECTED);
+
+            if (guide.getUser().getRole() == Role.GUIDE) {
+                guide.getUser().setRole(Role.TRAVELLER);
+            }
+
+        } else {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Invalid action"));
+        }
+
+        guideRepository.save(guide);
+
+        GuideDecisionResponseDTO dto = new GuideDecisionResponseDTO();
+        dto.setGuideId(guide.getId());
+        dto.setStatus(guide.getStatus().name());
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "status", "success",
+                        "message", "Guide request " + action + "d successfully",
+                        "data", dto
+                )
+        );
     }
 }

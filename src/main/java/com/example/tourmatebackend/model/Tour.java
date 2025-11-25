@@ -44,11 +44,11 @@ public class Tour {
     private User traveller; // The user who booked this tour (optional)
 
 
-    public Set<Category> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<Category> categories) {
+    public void setCategories(List<Category> categories) {
         this.categories = categories;
     }
 
@@ -56,19 +56,19 @@ public class Tour {
     @CollectionTable(name = "tour_categories", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private Set<Category> categories;
+    private List<Category> categories;
 
-    public Set<Language> getLanguages() {
+    public List<Language> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(Set<Language> languages) {
+    public void setLanguages(List<Language> languages) {
         this.languages = languages;
     }
 
     @ElementCollection(targetClass = Language.class)
     @Enumerated(EnumType.STRING)
-    private Set<Language> languages;
+    private List<Language> languages;
     public int getId() {
         return id;
     }

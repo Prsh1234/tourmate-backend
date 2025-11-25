@@ -1,6 +1,6 @@
 package com.example.tourmatebackend.service;
 
-import com.example.tourmatebackend.DTO.GuideBookingRequestDTO;
+import com.example.tourmatebackend.dto.booking.guide.GuideBookingRequestDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.User;

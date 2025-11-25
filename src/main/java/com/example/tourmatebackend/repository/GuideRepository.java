@@ -14,6 +14,8 @@ public interface GuideRepository extends JpaRepository<Guide, Integer> {
     boolean existsByUserId(int userId);
     Optional<Guide> findByUserId(int userId);
 
+    Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
+
     Page<Guide> findByStatusAndLocationContainingIgnoreCaseAndPriceBetween(
             GuideStatus status,
             String location,

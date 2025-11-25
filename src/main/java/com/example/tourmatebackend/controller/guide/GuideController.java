@@ -1,5 +1,6 @@
 package com.example.tourmatebackend.controller.guide;
 
+import com.example.tourmatebackend.dto.guide.GuideUpdateResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideRepository;
@@ -82,26 +83,28 @@ public class GuideController {
 
         Guide updatedGuide = guideRepository.save(existingGuide);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("guideId", updatedGuide.getId());
-        data.put("expertise", updatedGuide.getExpertise());
-        data.put("bio", updatedGuide.getBio());
-        data.put("categories", updatedGuide.getCategories());
-        data.put("languages", updatedGuide.getLanguages());
-        data.put("price", updatedGuide.getPrice());
-        data.put("location", updatedGuide.getLocation());
-        data.put("status", updatedGuide.getStatus());
-        data.put("profilePic", updatedGuide.getProfilePic());
+        GuideUpdateResponseDTO dto = new GuideUpdateResponseDTO();
 
-        data.put("userId", user.getId());
-        data.put("userName", user.getFirstName() + " " + user.getLastName());
-        data.put("userEmail", user.getEmail());
+        dto.setGuideId(updatedGuide.getId());
+        dto.setExpertise(updatedGuide.getExpertise());
+        dto.setBio(updatedGuide.getBio());
+        dto.setCategories(updatedGuide.getCategories());
+        dto.setLanguages(updatedGuide.getLanguages());
+        dto.setPrice(updatedGuide.getPrice());
+        dto.setLocation(updatedGuide.getLocation());
+        dto.setStatus(updatedGuide.getStatus());
+        dto.setProfilePic(updatedGuide.getProfilePic());
+
+        dto.setUserId(user.getId());
+        dto.setUserName(user.getFirstName() + " " + user.getLastName());
+        dto.setUserEmail(user.getEmail());
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Guide profile updated successfully",
-                "data", data
+                "data", dto
         ));
+
     }
 
 }

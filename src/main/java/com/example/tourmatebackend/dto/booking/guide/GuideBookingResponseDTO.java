@@ -1,4 +1,4 @@
-package com.example.tourmatebackend.DTO;
+package com.example.tourmatebackend.dto.booking.guide;
 
 import com.example.tourmatebackend.model.GuideBooking;
 

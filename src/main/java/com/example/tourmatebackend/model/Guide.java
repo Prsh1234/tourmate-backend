@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
-import java.util.Set;
+
 
 @Entity
 public class Guide {
@@ -43,11 +43,11 @@ public class Guide {
     @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private Set<Category> categories;
+    private List<Category> categories;
 
     @ElementCollection(targetClass = Language.class)
     @Enumerated(EnumType.STRING)
-    private Set<Language> languages;
+    private List<Language> languages;
 
     @Enumerated(EnumType.STRING)
     private GuideStatus status = GuideStatus.PENDING; // PENDING, APPROVED, REJECTED
@@ -114,22 +114,22 @@ public class Guide {
     public void setTours(List<Tour> tours) {
         this.tours = tours;
     }
-    public Set<Category> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<Category> categories) {
+    public void setCategories(List<Category> categories) {
         this.categories = categories;
     }
 
     public void setProfilePic(byte[] profilePic) {
         this.profilePic = profilePic;
     }
-    public Set<Language> getLanguages() {
+    public List<Language> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(Set<Language> languages) {
+    public void setLanguages(List<Language> languages) {
         this.languages = languages;
     }
 }

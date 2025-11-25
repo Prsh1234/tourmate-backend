@@ -1,6 +1,6 @@
 package com.example.tourmatebackend.controller.booking;
 
-import com.example.tourmatebackend.DTO.GuideBookingResponseDTO;
+import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
 import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideBookingRepository;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/guides/bookings")

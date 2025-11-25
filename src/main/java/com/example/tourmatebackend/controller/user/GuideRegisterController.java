@@ -1,8 +1,9 @@
 package com.example.tourmatebackend.controller.user;
 
+import com.example.tourmatebackend.dto.guideRegistration.GuideRegisterRequestDTO;
+import com.example.tourmatebackend.dto.guideRegistration.GuideRegisterResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.service.GuideService;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -21,8 +21,6 @@ public class GuideRegisterController {
     @Autowired
     private GuideService guideService;
 
-    @Autowired
-    private GuideRepository guideRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,10 +35,9 @@ public class GuideRegisterController {
     public ResponseEntity<?> registerGuide(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int userId,
-            @RequestBody Guide guideRequest
+            @RequestBody GuideRegisterRequestDTO guideRequest
     ) {
 
-        // Extract user from JWT token
         String token = authHeader.replace("Bearer ", "");
         String emailFromToken = jwtUtil.extractEmail(token);
         User tokenUser = userRepository.findByEmail(emailFromToken).orElse(null);
@@ -50,7 +47,6 @@ public class GuideRegisterController {
                     .body(Map.of("status", "error", "message", "Invalid token"));
         }
 
-        // 🔥 Allow registration ONLY if token userId == URL userId
         if (tokenUser.getId() != userId) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of(
@@ -59,7 +55,6 @@ public class GuideRegisterController {
                     ));
         }
 
-        // Validate user exists
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -69,24 +64,24 @@ public class GuideRegisterController {
         try {
             Guide guide = guideService.registerGuide(user, guideRequest);
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("guideId", guide.getId());
-            data.put("expertise", guide.getExpertise());
-            data.put("bio", guide.getBio());
-            data.put("categories", guide.getCategories());
-            data.put("languages",guide.getLanguages());
-            data.put("status", guide.getStatus().name());
-            data.put("profilePic", guide.getProfilePic());
-            data.put("price", guide.getPrice());
-            data.put("location", guide.getLocation());
-            data.put("userId", user.getId());
-            data.put("userName", user.getFirstName() + " " + user.getLastName());
-            data.put("userEmail", user.getEmail());
+            GuideRegisterResponseDTO response = new GuideRegisterResponseDTO();
+            response.setGuideId(guide.getId());
+            response.setExpertise(guide.getExpertise());
+            response.setBio(guide.getBio());
+            response.setCategories(guide.getCategories());
+            response.setLanguages(guide.getLanguages());
+            response.setStatus(guide.getStatus());
+            response.setProfilePic(guide.getProfilePic());
+            response.setPrice(guide.getPrice());
+            response.setLocation(guide.getLocation());
+            response.setUserId(user.getId());
+            response.setUserName(user.getFirstName() + " " + user.getLastName());
+            response.setUserEmail(user.getEmail());
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "message", "Guide registration request submitted",
-                    "data", data
+                    "data", response
             ));
 
         } catch (RuntimeException e) {
@@ -94,5 +89,6 @@ public class GuideRegisterController {
                     .body(Map.of("status", "error", "message", e.getMessage()));
         }
     }
+
 
 }
