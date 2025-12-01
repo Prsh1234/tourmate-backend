@@ -1,4 +1,4 @@
-package com.example.tourmatebackend.controller;
+package com.example.tourmatebackend.controller.auth;
 
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.UserRepository;
