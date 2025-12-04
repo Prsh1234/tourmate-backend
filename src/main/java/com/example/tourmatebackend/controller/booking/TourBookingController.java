@@ -1,13 +1,12 @@
 package com.example.tourmatebackend.controller.booking;
 
-import com.example.tourmatebackend.dto.booking.guide.GuideBookingRequestDTO;
 import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
-import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.model.GuideBooking;
-import com.example.tourmatebackend.repository.GuideBookingRepository;
-import com.example.tourmatebackend.repository.UserRepository;
-import com.example.tourmatebackend.service.GuideBookingService;
+import com.example.tourmatebackend.dto.booking.tour.TourBookingRequestDTO;
+import com.example.tourmatebackend.dto.booking.tour.TourBookingResponseDTO;
+import com.example.tourmatebackend.model.*;
+import com.example.tourmatebackend.repository.*;
 import com.example.tourmatebackend.states.BookingStatus;
+
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,73 +14,88 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/traveller")
-public class TravellerBookingController {
+@RequestMapping("/api/traveller/tour")
+public class TourBookingController {
 
-    @Autowired
-    private GuideBookingService bookingService;
-    @Autowired
-    private GuideBookingRepository bookingRepository;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    // ----------------------------
-    // Book a guide (request)
-    // ----------------------------
+    @Autowired
+    private TourRepository tourRepository;
+    @Autowired
+    private GuideRepository guideRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TourBookingRepository bookingRepository;
+
+    // --------------------------------------
+    // CREATE BOOKING
+    // --------------------------------------
     @PostMapping("/book-request")
-    public ResponseEntity<?> requestBooking(@RequestBody GuideBookingRequestDTO request) {
+    public ResponseEntity<?> createBooking(@RequestBody TourBookingRequestDTO req) {
 
-        // Get authenticated user from security context
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User user)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("status", "error", "message", "Unauthorized"));
+        Tour tour = tourRepository.findById(req.getTourId()).orElse(null);
+        User user = userRepository.findById(req.getUserId()).orElse(null);
+        Guide guide = guideRepository.findById(req.getGuideId()).orElse(null);
+        System.out.println(tour);
+        System.out.println(guide);
+        System.out.println(user);
+
+        if (tour == null || user == null || guide == null) {
+            return ResponseEntity.badRequest().body("Invalid user, tour or guide ID");
         }
 
-        try {
-            // Pass authenticated user to service
-            GuideBooking booking = bookingService.createBookingRequest(request, user);
+        TourBooking booking = new TourBooking();
+        booking.setTour(tour);
+        booking.setUser(user);
+        booking.setGuide(guide);   // SAVE GUIDE
+        booking.setTravellers(req.getTravellers());
 
-            // Return proper response DTO
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "message", "Booking request submitted",
-                    "data", new GuideBookingResponseDTO(booking)
-            ));
+        double price = tour.getPrice() * req.getTravellers();
+        booking.setTotalPrice(price);
 
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("status", "error", "message", e.getMessage()));
-        }
+        bookingRepository.save(booking);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Booking request submitted",
+                "data", new TourBookingResponseDTO(booking)
+        ));
+
     }
-    // --- Get traveller bookings with pagination ---
-    @GetMapping("/mybookings")
-    public ResponseEntity<?> getTravellerBookings(
+
+
+    // --------------------------------------
+    // GET ALL BOOKINGS OF A USER
+    // --------------------------------------
+    @GetMapping("/mytourbookings")
+    public ResponseEntity<?> getTravellerTourBookings(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(required = false) String status, // comma-separated status filter
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+        // Extract authenticated user from JWT
         User user = getUserFromToken(authHeader);
+
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<GuideBooking> bookingPage;
+        Page<TourBooking> bookingPage;
 
         if (status == null || status.isEmpty()) {
-            // No filter: get all bookings
+            // No filter: get all bookings for the user
             bookingPage = bookingRepository.findByUserId(user.getId(), pageable);
         } else {
-            // Split comma-separated statuses and convert to enums
+            // Convert comma-separated status to BookingStatus enums
             List<BookingStatus> statusEnums = Arrays.stream(status.split(","))
                     .map(String::toUpperCase)
                     .map(BookingStatus::valueOf)
@@ -90,8 +104,8 @@ public class TravellerBookingController {
             bookingPage = bookingRepository.findByUserIdAndStatusIn(user.getId(), statusEnums, pageable);
         }
 
-        List<GuideBookingResponseDTO> bookings = bookingPage.getContent().stream()
-                .map(GuideBookingResponseDTO::new)
+        List<TourBookingResponseDTO> bookings = bookingPage.getContent().stream()
+                .map(TourBookingResponseDTO::new)
                 .toList();
 
         return ResponseEntity.ok(Map.of(
@@ -103,40 +117,42 @@ public class TravellerBookingController {
                 "totalPages", bookingPage.getTotalPages()
         ));
     }
-
-
-    // --- Cancel a booking ---
     @PutMapping("/{bookingId}/cancel")
-    public ResponseEntity<?> cancelBooking(
+    public ResponseEntity<?> cancelTourBooking(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int bookingId
     ) {
+        // Extract authenticated user
         User user = getUserFromToken(authHeader);
 
-        GuideBooking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        // Find the tour booking
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
 
+        // Ensure the user owns this booking
         if (booking.getUser().getId() != user.getId()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only cancel your own bookings."));
         }
 
+        // Only allow cancelling if status is PENDING
         if (booking.getStatus() != BookingStatus.PENDING) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("status", "error", "message", "Only pending bookings can be cancelled."));
         }
 
+        // Cancel the booking
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Booking cancelled successfully",
-                "data", new GuideBookingResponseDTO(booking)
+                "message", "Tour booking cancelled successfully",
+                "data", new TourBookingResponseDTO(booking)
         ));
     }
 
-    // --- Helper method to extract user from JWT ---
+    // Helper method to extract User from JWT
     private User getUserFromToken(String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = jwtUtil.extractEmail(token);

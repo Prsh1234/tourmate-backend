@@ -10,6 +10,10 @@ public class GuideBookingResponseDTO {
     private int hours;
     private int groupSize;
     private String status;
+    private String paymentStatus;
+
+
+    private String paymentTransactionId;
 
     public GuideBookingResponseDTO(GuideBooking booking) {
         this.bookingId = booking.getId();
@@ -21,6 +25,8 @@ public class GuideBookingResponseDTO {
         this.hours = booking.getHours();
         this.groupSize = booking.getGroupSize();
         this.status = booking.getStatus().name(); // PENDING, APPROVED, REJECTED
+        this.paymentStatus = booking.getPaymentStatus().name();
+        this.paymentTransactionId = booking.getPaymentTransactionId();
     }
 
     // Getters only (Spring can serialize)

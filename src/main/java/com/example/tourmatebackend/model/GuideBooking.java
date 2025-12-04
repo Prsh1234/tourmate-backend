@@ -1,6 +1,7 @@
 package com.example.tourmatebackend.model;
 
 import com.example.tourmatebackend.states.BookingStatus;
+import com.example.tourmatebackend.states.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,30 @@ public class GuideBooking {
     private double totalPrice;
 
     private LocalDateTime bookingDate = LocalDateTime.now();
+    // Payment simulation
+
+    private String paymentTransactionId; // mock transaction ID
+    private LocalDateTime paymentDate;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    // Getters & Setters
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+    public String getPaymentTransactionId() {
+        return paymentTransactionId;
+    }
+
+    public void setPaymentTransactionId(String paymentTransactionId) {
+        this.paymentTransactionId = paymentTransactionId;
+    }
+
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
 
     public BookingStatus getStatus() {
         return status;

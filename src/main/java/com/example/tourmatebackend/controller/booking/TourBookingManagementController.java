@@ -1,9 +1,9 @@
 package com.example.tourmatebackend.controller.booking;
 
-import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
-import com.example.tourmatebackend.model.GuideBooking;
+import com.example.tourmatebackend.dto.booking.tour.TourBookingResponseDTO;
+import com.example.tourmatebackend.model.TourBooking;
 import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.repository.GuideBookingRepository;
+import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -15,17 +15,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/guides/guide/bookings")
-public class GuideBookingManagementController {
+@RequestMapping("/api/guides/tour/bookings")
+public class TourBookingManagementController {
 
     @Autowired
-    private GuideBookingRepository bookingRepository;
+    private TourBookingRepository bookingRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -34,10 +33,10 @@ public class GuideBookingManagementController {
     private JwtUtil jwtUtil;
 
     // ----------------------------
-    // Approve a booking request
+    // Accept a tour booking request
     // ----------------------------
     @PutMapping("/{bookingId}/accept")
-    public ResponseEntity<?> approveBooking(
+    public ResponseEntity<?> acceptTourBooking(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int bookingId
     ) {
@@ -45,15 +44,16 @@ public class GuideBookingManagementController {
 
         if (!isGuide(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "Only guides can manage bookings."));
+                    .body(Map.of("status", "error", "message", "Only guides can manage tour bookings."));
         }
 
-        GuideBooking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
 
-        if (booking.getGuide().getId() != user.getGuide().getId()) {
+
+        if (booking.getGuide() == null || booking.getGuide().getId() != user.getGuide().getId()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "You can only manage bookings for your own guide profile."));
+                    .body(Map.of("status", "error", "message", "You can only manage your own tour bookings."));
         }
 
         booking.setStatus(BookingStatus.APPROVED);
@@ -61,16 +61,16 @@ public class GuideBookingManagementController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Booking approved successfully",
-                "data", new GuideBookingResponseDTO(booking)
+                "message", "Tour booking approved successfully",
+                "data", new TourBookingResponseDTO(booking)
         ));
     }
 
     // ----------------------------
-    // Deny a booking request
+    // Reject a tour booking request
     // ----------------------------
     @PutMapping("/{bookingId}/reject")
-    public ResponseEntity<?> denyBooking(
+    public ResponseEntity<?> rejectTourBooking(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int bookingId
     ) {
@@ -78,15 +78,15 @@ public class GuideBookingManagementController {
 
         if (!isGuide(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "Only guides can manage bookings."));
+                    .body(Map.of("status", "error", "message", "Only guides can manage tour bookings."));
         }
 
-        GuideBooking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
 
-        if (booking.getGuide().getId() != user.getGuide().getId()) {
+        if (booking.getGuide() == null || booking.getGuide().getId() != user.getGuide().getId()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "You can only manage bookings for your own guide profile."));
+                    .body(Map.of("status", "error", "message", "You can only manage your own tour bookings."));
         }
 
         booking.setStatus(BookingStatus.DENIED);
@@ -94,18 +94,18 @@ public class GuideBookingManagementController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Booking denied successfully",
-                "data", new GuideBookingResponseDTO(booking)
+                "message", "Tour booking rejected successfully",
+                "data", new TourBookingResponseDTO(booking)
         ));
     }
 
     // ----------------------------
-    // Get all pending booking requests for this guide
+    // View tour booking requests
     // ----------------------------
     @GetMapping("/view")
-    public ResponseEntity<?> getGuideBookings(
+    public ResponseEntity<?> viewTourBookings(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam(required = false) String status, // comma-separated statuses
+            @RequestParam(required = false) String status, // comma-separated status filters
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -113,33 +113,37 @@ public class GuideBookingManagementController {
 
         if (!isGuide(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "Only guides can view their bookings."));
+                    .body(Map.of("status", "error", "message", "Only guides can view tour bookings."));
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<GuideBooking> bookingPage;
+        Page<TourBooking> bookingPage;
 
         if (status == null || status.isEmpty()) {
-            // No filter: get all bookings for this guide
+            // Get all
             bookingPage = bookingRepository.findByGuideId(user.getGuide().getId(), pageable);
         } else {
-            // Filter by one or more statuses
+            // Filter by multiple statuses
             List<BookingStatus> statusEnums = Arrays.stream(status.split(","))
                     .map(String::toUpperCase)
                     .map(BookingStatus::valueOf)
                     .toList();
 
-            bookingPage = bookingRepository.findByGuideIdAndStatusIn(user.getGuide().getId(), statusEnums, pageable);
+            bookingPage = bookingRepository.findByGuideIdAndStatusIn(
+                    user.getGuide().getId(),
+                    statusEnums,
+                    pageable
+            );
         }
 
-        List<GuideBookingResponseDTO> bookings = bookingPage.getContent()
+        List<TourBookingResponseDTO> bookings = bookingPage.getContent()
                 .stream()
-                .map(GuideBookingResponseDTO::new)
+                .map(TourBookingResponseDTO::new)
                 .toList();
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Bookings fetched successfully",
+                "message", "Tour bookings fetched successfully",
                 "data", bookings,
                 "currentPage", bookingPage.getNumber(),
                 "pageSize", bookingPage.getSize(),
@@ -149,7 +153,9 @@ public class GuideBookingManagementController {
     }
 
 
-    // --- Helper methods ---
+    // ----------------------------
+    // Helper Methods
+    // ----------------------------
     private User getUserFromToken(String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = jwtUtil.extractEmail(token);
@@ -158,7 +164,6 @@ public class GuideBookingManagementController {
     }
 
     private boolean isGuide(User user) {
-        return user.getGuide() != null;
+        return user.getGuide() != null; // ensures only guide accounts can access
     }
 }
-
