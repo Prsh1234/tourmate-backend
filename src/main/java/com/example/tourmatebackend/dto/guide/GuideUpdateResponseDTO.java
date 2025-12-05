@@ -11,8 +11,8 @@ public class GuideUpdateResponseDTO {
     private int guideId;
     private String expertise;
     private String bio;
-    private List<Category> categories;   // FIXED
-    private List<Language> languages;    // FIXED
+    private List<Category> categories;
+    private List<Language> languages;
     private Double price;
     private String location;
     private GuideStatus status;

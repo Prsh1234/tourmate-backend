@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface GuideRepository extends JpaRepository<Guide, Integer> {
-    boolean existsByUserId(int userId);
     Optional<Guide> findByUserId(int userId);
 
     Page<Guide> findByStatus(GuideStatus status, Pageable pageable);

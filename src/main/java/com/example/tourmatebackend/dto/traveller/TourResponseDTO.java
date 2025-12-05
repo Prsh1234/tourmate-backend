@@ -1,9 +1,11 @@
 package com.example.tourmatebackend.dto.traveller;
 
+import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
 import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.Language;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TourResponseDTO {
@@ -22,9 +24,38 @@ public class TourResponseDTO {
     private int guideId;
     private String guideName;
     private String guideExpertise;
+    private List<TourItineraryDTO> itineraries;
+
+    public TourResponseDTO(){
+        // You can optionally initialize collections here to avoid NullPointerException
+        this.categories = new ArrayList<>();
+        this.languages = new ArrayList<>();
+        this.itineraries = new ArrayList<>();
+    }
+    public TourResponseDTO(int id, String title, String description, String location, Double price, LocalDate startDate, LocalDate endDate, List<Category> categories, List<Language> languages, int guideId, String guideName, String guideExpertise, List<TourItineraryDTO> itineraries) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        this.price = price;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.categories = categories;
+        this.languages = languages;
+        this.guideId = guideId;
+        this.guideName = guideName;
+        this.guideExpertise = guideExpertise;
+        this.itineraries = itineraries;
+    }
 
     // Getters & Setters
+    public void setItineraries(List<TourItineraryDTO> itineraries) {
+        this.itineraries = itineraries;
+    }
 
+    public List<TourItineraryDTO> getItineraries() {
+        return itineraries;
+    }
     public int getId() {
         return id;
     }

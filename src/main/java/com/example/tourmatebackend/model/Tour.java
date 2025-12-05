@@ -4,12 +4,11 @@ import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.Language;
 import com.example.tourmatebackend.states.TourStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class Tour {
@@ -43,20 +42,37 @@ public class Tour {
     @JsonBackReference("user-tour")
     private User traveller; // The user who booked this tour (optional)
 
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("tour-itinerary")
+    private List<TourItinerary> itineraries;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tour_categories", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private List<Category> categories;
+
+
+    @ElementCollection(targetClass = Language.class)
+    @Enumerated(EnumType.STRING)
+    private List<Language> languages;
+
+
+    public List<TourItinerary> getItineraries() {
+        return itineraries;
+    }
+
+    public void setItineraries(List<TourItinerary> itineraries) {
+        this.itineraries = itineraries;
+    }
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+
+        this.categories = categories;
+    }
 
     public List<Language> getLanguages() {
         return languages;
@@ -66,9 +82,7 @@ public class Tour {
         this.languages = languages;
     }
 
-    @ElementCollection(targetClass = Language.class)
-    @Enumerated(EnumType.STRING)
-    private List<Language> languages;
+
     public int getId() {
         return id;
     }

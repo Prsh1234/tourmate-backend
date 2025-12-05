@@ -25,6 +25,16 @@ public class TourResponseDTO {
     private String guideName;
     private String guideExpertise;
 
+    public List<TourItineraryDTO> getItineraries() {
+        return itineraries;
+    }
+
+    public void setItineraries(List<TourItineraryDTO> itineraries) {
+        this.itineraries = itineraries;
+    }
+
+    private List<TourItineraryDTO> itineraries;
+
     // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

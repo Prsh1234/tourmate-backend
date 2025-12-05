@@ -1,8 +1,10 @@
 package com.example.tourmatebackend.controller.guide;
 
+import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
 import com.example.tourmatebackend.dto.guide.TourResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.Tour;
+import com.example.tourmatebackend.model.TourItinerary;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.TourRepository;
 import com.example.tourmatebackend.repository.UserRepository;
@@ -58,6 +60,19 @@ public class TourController {
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
         dto.setGuideExpertise(tour.getGuide().getExpertise());
+        dto.setItineraries(
+                tour.getItineraries()
+                        .stream()
+                        .map(it -> new TourItineraryDTO(
+                                it.getId(),
+                                it.getStepNumber(),
+                                it.getTime(),
+                                it.getTitle(),
+                                it.getDescription()
+                        ))
+                        .toList()
+        );
+
 
         return dto;
     }
@@ -86,6 +101,13 @@ public class TourController {
         tour.setStatus(TourStatus.DRAFTED);
         if (tourRequest.getCategories() != null) tour.setCategories(tourRequest.getCategories());
         if (tourRequest.getLanguages() != null) tour.setLanguages(tourRequest.getLanguages());
+        if (tourRequest.getItineraries() != null) {
+            for (TourItinerary itinerary : tourRequest.getItineraries()) {
+                itinerary.setTour(tour);
+            }
+        }
+
+        tour.setItineraries(tourRequest.getItineraries());
 
         Tour savedTour = tourRepository.save(tour);
         return ResponseEntity.ok(Map.of(
@@ -176,15 +198,22 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only edit your own tours."));
 
-        tour.setTitle(updatedTour.getTitle());
-        tour.setDescription(updatedTour.getDescription());
-        tour.setLocation(updatedTour.getLocation());
-        tour.setPrice(updatedTour.getPrice());
-        tour.setStartDate(updatedTour.getStartDate());
-        tour.setEndDate(updatedTour.getEndDate());
+        if (updatedTour.getTitle() != null) tour.setTitle(updatedTour.getTitle());
+        if (updatedTour.getDescription() != null)tour.setDescription(updatedTour.getDescription());
+        if (updatedTour.getLocation() != null)tour.setLocation(updatedTour.getLocation());
+        if (updatedTour.getPrice() != 0.0)tour.setPrice(updatedTour.getPrice());
+        if (updatedTour.getStartDate() != null)tour.setStartDate(updatedTour.getStartDate());
+        if (updatedTour.getEndDate() != null)tour.setEndDate(updatedTour.getEndDate());
         if (updatedTour.getCategories() != null) tour.setCategories(updatedTour.getCategories());
         if (updatedTour.getLanguages() != null) tour.setLanguages(updatedTour.getLanguages());
+        tour.getItineraries().clear(); // thanks to orphanRemoval = true
 
+        if (updatedTour.getItineraries() != null) {
+            for (TourItinerary it : updatedTour.getItineraries()) {
+                it.setTour(tour);
+                tour.getItineraries().add(it);
+            }
+        }
         Tour saved = tourRepository.save(tour);
 
         return ResponseEntity.ok(Map.of(

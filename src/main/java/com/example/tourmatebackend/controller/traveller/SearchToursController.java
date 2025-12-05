@@ -1,10 +1,9 @@
 package com.example.tourmatebackend.controller.traveller;
 
+import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
 import com.example.tourmatebackend.dto.traveller.TourResponseDTO;
 import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.repository.TourRepository;
-import com.example.tourmatebackend.states.Category;
-import com.example.tourmatebackend.states.Language;
 import com.example.tourmatebackend.states.TourStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,7 +43,18 @@ public class SearchToursController {
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
         dto.setGuideExpertise(tour.getGuide().getExpertise());
-
+        dto.setItineraries(
+                tour.getItineraries()
+                        .stream()
+                        .map(it -> new TourItineraryDTO(
+                                it.getId(),
+                                it.getStepNumber(),
+                                it.getTime(),
+                                it.getTitle(),
+                                it.getDescription()
+                        ))
+                        .toList()
+        );
         return dto;
     }
 
