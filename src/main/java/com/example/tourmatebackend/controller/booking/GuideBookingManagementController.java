@@ -99,6 +99,36 @@ public class GuideBookingManagementController {
         ));
     }
 
+    @PutMapping("/{bookingId}/complete")
+    public ResponseEntity<?> completeBooking(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int bookingId
+    ) {
+        User user = getUserFromToken(authHeader);
+
+        if (!isGuide(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "Only guides can manage bookings."));
+        }
+
+        GuideBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (booking.getGuide().getId() != user.getGuide().getId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "You can only manage bookings for your own guide profile."));
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Booking completed successfully",
+                "data", new GuideBookingResponseDTO(booking)
+        ));
+    }
+
     // ----------------------------
     // Get all pending booking requests for this guide
     // ----------------------------

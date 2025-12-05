@@ -66,6 +66,36 @@ public class TourBookingManagementController {
         ));
     }
 
+    @PutMapping("/{bookingId}/complete")
+    public ResponseEntity<?> completeTourBooking(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int bookingId
+    ) {
+        User user = getUserFromToken(authHeader);
+
+        if (!isGuide(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "Only guides can manage tour bookings."));
+        }
+
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
+
+
+        if (booking.getGuide() == null || booking.getGuide().getId() != user.getGuide().getId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "You can only manage your own tour bookings."));
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Tour completed approved successfully",
+                "data", new TourBookingResponseDTO(booking)
+        ));
+    }
     // ----------------------------
     // Reject a tour booking request
     // ----------------------------

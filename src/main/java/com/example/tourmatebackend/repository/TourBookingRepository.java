@@ -14,4 +14,6 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Intege
 
     Page<TourBooking> findByGuideIdAndStatusIn(int guideId, List<BookingStatus> statuses, Pageable pageable);
     Page<TourBooking> findByUserIdAndStatusIn(int userId, List<BookingStatus> statuses, Pageable pageable);
+    boolean existsByUserIdAndTourIdAndStatus(int userId, int tourId, BookingStatus status);
+
 }
