@@ -39,7 +39,9 @@ public class SearchToursController {
         dto.setEndDate(tour.getEndDate());
         dto.setCategories(tour.getCategories());
         dto.setLanguages(tour.getLanguages());
-
+        dto.setIncluded(tour.getIncluded());
+        dto.setNotIncluded(tour.getNotIncluded());
+        dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
         dto.setGuideExpertise(tour.getGuide().getExpertise());

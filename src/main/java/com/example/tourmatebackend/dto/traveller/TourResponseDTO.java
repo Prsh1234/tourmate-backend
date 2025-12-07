@@ -26,13 +26,23 @@ public class TourResponseDTO {
     private String guideExpertise;
     private List<TourItineraryDTO> itineraries;
 
+
+
+    private List<String> included;
+    private List<String> notIncluded;
+    private List<String> importantInformation;
+
     public TourResponseDTO(){
         // You can optionally initialize collections here to avoid NullPointerException
         this.categories = new ArrayList<>();
         this.languages = new ArrayList<>();
         this.itineraries = new ArrayList<>();
     }
-    public TourResponseDTO(int id, String title, String description, String location, Double price, LocalDate startDate, LocalDate endDate, List<Category> categories, List<Language> languages, int guideId, String guideName, String guideExpertise, List<TourItineraryDTO> itineraries) {
+    public TourResponseDTO(int id, String title, String description, String location, Double price,
+                           LocalDate startDate, LocalDate endDate, List<Category> categories,
+                           List<Language> languages, int guideId, String guideName, String guideExpertise,
+                           List<TourItineraryDTO> itineraries, List<String> included, List<String> notIncluded,
+                           List<String> importantInformation) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -46,6 +56,9 @@ public class TourResponseDTO {
         this.guideName = guideName;
         this.guideExpertise = guideExpertise;
         this.itineraries = itineraries;
+        this.importantInformation=importantInformation;
+        this.included=included;
+        this.notIncluded=notIncluded;
     }
 
     // Getters & Setters
@@ -127,5 +140,29 @@ public class TourResponseDTO {
     }
     public void setGuideExpertise(String guideExpertise) {
         this.guideExpertise = guideExpertise;
+    }
+
+    public List<String> getIncluded() {
+        return included;
+    }
+
+    public void setIncluded(List<String> included) {
+        this.included = included;
+    }
+
+    public List<String> getNotIncluded() {
+        return notIncluded;
+    }
+
+    public void setNotIncluded(List<String> notIncluded) {
+        this.notIncluded = notIncluded;
+    }
+
+    public List<String> getImportantInformation() {
+        return importantInformation;
+    }
+
+    public void setImportantInformation(List<String> importantInformation) {
+        this.importantInformation = importantInformation;
     }
 }

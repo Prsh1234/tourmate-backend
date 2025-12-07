@@ -24,6 +24,9 @@ public class TourResponseDTO {
     private int guideId;
     private String guideName;
     private String guideExpertise;
+    private List<String> included;
+    private List<String> notIncluded;
+    private List<String> importantInformation;
 
     public List<TourItineraryDTO> getItineraries() {
         return itineraries;
@@ -74,4 +77,27 @@ public class TourResponseDTO {
 
     public String getGuideExpertise() { return guideExpertise; }
     public void setGuideExpertise(String guideExpertise) { this.guideExpertise = guideExpertise; }
+    public List<String> getIncluded() {
+        return included;
+    }
+
+    public void setIncluded(List<String> included) {
+        this.included = included;
+    }
+
+    public List<String> getNotIncluded() {
+        return notIncluded;
+    }
+
+    public void setNotIncluded(List<String> notIncluded) {
+        this.notIncluded = notIncluded;
+    }
+
+    public List<String> getImportantInformation() {
+        return importantInformation;
+    }
+
+    public void setImportantInformation(List<String> importantInformation) {
+        this.importantInformation = importantInformation;
+    }
 }

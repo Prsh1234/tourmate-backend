@@ -56,8 +56,20 @@ public class Tour {
     @ElementCollection(targetClass = Language.class)
     @Enumerated(EnumType.STRING)
     private List<Language> languages;
+    @ElementCollection
+    @CollectionTable(name = "tour_included", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "included_item")
+    private List<String> included;
 
+    @ElementCollection
+    @CollectionTable(name = "tour_not_included", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "not_included_item")
+    private List<String> notIncluded;
 
+    @ElementCollection
+    @CollectionTable(name = "tour_important_info", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "info_item")
+    private List<String> importantInformation;
     public List<TourItinerary> getItineraries() {
         return itineraries;
     }
@@ -161,5 +173,16 @@ public class Tour {
 
     public void setTraveller(User traveller) {
         this.traveller = traveller;
+    }
+
+    public List<String> getIncluded() { return included; }
+    public void setIncluded(List<String> included) { this.included = included; }
+
+    public List<String> getNotIncluded() { return notIncluded; }
+    public void setNotIncluded(List<String> notIncluded) { this.notIncluded = notIncluded; }
+
+    public List<String> getImportantInformation() { return importantInformation; }
+    public void setImportantInformation(List<String> importantInformation) {
+        this.importantInformation = importantInformation;
     }
 }

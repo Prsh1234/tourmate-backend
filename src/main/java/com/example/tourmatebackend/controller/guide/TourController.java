@@ -56,7 +56,9 @@ public class TourController {
         dto.setCategories(tour.getCategories());
         dto.setLanguages(tour.getLanguages());
         dto.setStatus(tour.getStatus());
-
+        dto.setIncluded(tour.getIncluded());
+        dto.setNotIncluded(tour.getNotIncluded());
+        dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
         dto.setGuideExpertise(tour.getGuide().getExpertise());
@@ -206,9 +208,15 @@ public class TourController {
         if (updatedTour.getEndDate() != null)tour.setEndDate(updatedTour.getEndDate());
         if (updatedTour.getCategories() != null) tour.setCategories(updatedTour.getCategories());
         if (updatedTour.getLanguages() != null) tour.setLanguages(updatedTour.getLanguages());
-        tour.getItineraries().clear(); // thanks to orphanRemoval = true
+        if(updatedTour.getIncluded() != null) tour.setIncluded(updatedTour.getIncluded());
+        if(updatedTour.getNotIncluded() != null) tour.setNotIncluded(updatedTour.getNotIncluded());
+        if(updatedTour.getImportantInformation() != null) tour.setImportantInformation(updatedTour.getImportantInformation());
+
+
 
         if (updatedTour.getItineraries() != null) {
+            tour.getItineraries().clear(); // thanks to orphanRemoval = true
+
             for (TourItinerary it : updatedTour.getItineraries()) {
                 it.setTour(tour);
                 tour.getItineraries().add(it);
