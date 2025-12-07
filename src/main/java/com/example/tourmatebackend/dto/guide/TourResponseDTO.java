@@ -28,6 +28,7 @@ public class TourResponseDTO {
     private List<String> notIncluded;
     private List<String> importantInformation;
 
+    private boolean isFavorited;
     public List<TourItineraryDTO> getItineraries() {
         return itineraries;
     }
@@ -99,5 +100,13 @@ public class TourResponseDTO {
 
     public void setImportantInformation(List<String> importantInformation) {
         this.importantInformation = importantInformation;
+    }
+
+    public boolean isFavorited() {
+        return isFavorited;
+    }
+
+    public void setFavorited(boolean favorited) {
+        isFavorited = favorited;
     }
 }

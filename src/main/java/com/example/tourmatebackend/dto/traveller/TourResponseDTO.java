@@ -31,7 +31,7 @@ public class TourResponseDTO {
     private List<String> included;
     private List<String> notIncluded;
     private List<String> importantInformation;
-
+    private boolean isFavorited;
     public TourResponseDTO(){
         // You can optionally initialize collections here to avoid NullPointerException
         this.categories = new ArrayList<>();
@@ -42,7 +42,7 @@ public class TourResponseDTO {
                            LocalDate startDate, LocalDate endDate, List<Category> categories,
                            List<Language> languages, int guideId, String guideName, String guideExpertise,
                            List<TourItineraryDTO> itineraries, List<String> included, List<String> notIncluded,
-                           List<String> importantInformation) {
+                           List<String> importantInformation, boolean isFavorited) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -59,6 +59,7 @@ public class TourResponseDTO {
         this.importantInformation=importantInformation;
         this.included=included;
         this.notIncluded=notIncluded;
+        this.isFavorited=isFavorited;
     }
 
     // Getters & Setters
@@ -164,5 +165,12 @@ public class TourResponseDTO {
 
     public void setImportantInformation(List<String> importantInformation) {
         this.importantInformation = importantInformation;
+    }
+    public boolean isFavorited() {
+        return isFavorited;
+    }
+
+    public void setFavorited(boolean favorited) {
+        isFavorited = favorited;
     }
 }

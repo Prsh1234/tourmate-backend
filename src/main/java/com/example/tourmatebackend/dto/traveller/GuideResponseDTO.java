@@ -14,7 +14,7 @@ public class GuideResponseDTO {
     private Double price;
     private List<Category> categories;
     private List<Language> languages;
-
+    private boolean isFavorited;
     private int userId;
     private String userName;
     private String userEmail;
@@ -86,5 +86,12 @@ public class GuideResponseDTO {
     }
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+    public boolean isFavorited() {
+        return isFavorited;
+    }
+
+    public void setFavorited(boolean favorited) {
+        isFavorited = favorited;
     }
 }
