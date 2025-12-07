@@ -161,7 +161,7 @@ public class SearchGuideController {
         dto.setUserId(u.getId());
         dto.setUserName(u.getFirstName() + " " + u.getLastName());
         dto.setUserEmail(u.getEmail());
-        dto.setProfilePic(encodeImage(u.getProfilePic()));
+        dto.setProfilePic(encodeImage(u.getProfilePic()).getBytes());
 
         return dto;
     }

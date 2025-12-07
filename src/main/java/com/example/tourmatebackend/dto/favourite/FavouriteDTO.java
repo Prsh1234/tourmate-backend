@@ -1,37 +1,44 @@
 package com.example.tourmatebackend.dto.favourite;
 
-import com.example.tourmatebackend.model.Favourite;
-import com.example.tourmatebackend.model.Guide;
-import com.example.tourmatebackend.model.Tour;
-import com.example.tourmatebackend.states.FavouriteType;
-
+import com.example.tourmatebackend.dto.traveller.GuideResponseDTO;
+import com.example.tourmatebackend.dto.traveller.TourResponseDTO;
 import java.time.LocalDateTime;
 
 public class FavouriteDTO {
 
     private Long id;
     private String type;
-
-    private Guide guide;
-    private Tour tour;
-    private String guideName;
-
-    private String tourTitle;
+    private GuideResponseDTO guide;
+    private TourResponseDTO tour;
 
     private LocalDateTime createdAt;
 
-    public FavouriteDTO(Long id, String type, Integer guideId, String guideName, Integer tourId, String tourTitle, LocalDateTime createdAt) {
+    public FavouriteDTO(Long id, String type, GuideResponseDTO guide, TourResponseDTO tour, LocalDateTime createdAt) {
         this.id = id;
         this.type = type;
-        this.guideId = guideId;
-        this.guideName = guideName;
-        this.tourId = tourId;
-        this.tourTitle = tourTitle;
+        this.guide = guide;
+        this.tour = tour;
         this.createdAt = createdAt;
     }
 
-    // getters + setters
+// getters + setters
 
+
+    public GuideResponseDTO getGuide() {
+        return guide;
+    }
+
+    public void setGuide(GuideResponseDTO guide) {
+        this.guide = guide;
+    }
+
+    public TourResponseDTO getTour() {
+        return tour;
+    }
+
+    public void setTour(TourResponseDTO tour) {
+        this.tour = tour;
+    }
 
     public Long getId() {
         return id;
@@ -47,38 +54,6 @@ public class FavouriteDTO {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public Integer getGuideId() {
-        return guideId;
-    }
-
-    public void setGuideId(Integer guideId) {
-        this.guideId = guideId;
-    }
-
-    public String getGuideName() {
-        return guideName;
-    }
-
-    public void setGuideName(String guideName) {
-        this.guideName = guideName;
-    }
-
-    public Integer getTourId() {
-        return tourId;
-    }
-
-    public void setTourId(Integer tourId) {
-        this.tourId = tourId;
-    }
-
-    public String getTourTitle() {
-        return tourTitle;
-    }
-
-    public void setTourTitle(String tourTitle) {
-        this.tourTitle = tourTitle;
     }
 
     public LocalDateTime getCreatedAt() {

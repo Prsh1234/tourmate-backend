@@ -18,7 +18,7 @@ public class GuideResponseDTO {
     private int userId;
     private String userName;
     private String userEmail;
-    private String profilePic; // Base64 encoded
+    private byte[] profilePic; // Base64 encoded
 
     // Getters & Setters
     public int getGuideId() {
@@ -81,10 +81,10 @@ public class GuideResponseDTO {
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
-    public String getProfilePic() {
+    public byte[] getProfilePic() {
         return profilePic;
     }
-    public void setProfilePic(String profilePic) {
+    public void setProfilePic(byte[] profilePic) {
         this.profilePic = profilePic;
     }
     public boolean isFavorited() {
