@@ -1,11 +1,13 @@
 package com.example.tourmatebackend.controller.guide;
 
+import com.example.tourmatebackend.dto.guide.EarningsSummaryDTO;
 import com.example.tourmatebackend.dto.guide.GuideDashboardDTO;
 import com.example.tourmatebackend.dto.guide.GuideUpdateResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.service.EarningsService;
 import com.example.tourmatebackend.service.GuideService;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,10 @@ public class GuideController {
     private GuideService guideService;
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EarningsService earningsService;
+
     @PutMapping("/edit/{userId}")
     public ResponseEntity<?> updateGuide(
             @RequestHeader("Authorization") String authHeader,
@@ -123,6 +129,24 @@ public class GuideController {
 
         GuideDashboardDTO dto = guideService.getGuideDashboard(user.getGuide().getId());
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/earnings")
+    public ResponseEntity<?> getEarnings(@RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtUtil.extractEmail(token);
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (user == null || user.getGuide() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not a guide user");
+        }
+
+        int guideId = user.getGuide().getId();
+
+        EarningsSummaryDTO earnings = earningsService.getGuideEarnings(guideId);
+
+        return ResponseEntity.ok(earnings);
     }
 
 }

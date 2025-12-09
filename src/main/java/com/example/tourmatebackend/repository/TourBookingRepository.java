@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TourBookingRepository extends JpaRepository<TourBooking, Integer> {
+
     Page<TourBooking> findByUserId(int userId, Pageable pageable);
     Page<TourBooking> findByGuideId(int guideId, Pageable pageable); // guide's bookings
 
@@ -55,7 +56,18 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Intege
            AND b.status IN (com.example.tourmatebackend.states.BookingStatus.COMPLETED, com.example.tourmatebackend.states.BookingStatus.APPROVED)
            """)
     Integer getTotalTravelers(@Param("guideId") int guideId);
+    @Query("""
+           SELECT SUM(b.totalPrice)
+           FROM TourBooking b
+           WHERE b.tour.guide.id = :guideId
+                      AND b.paymentStatus = "PENDING"
+                      AND b.status IN (com.example.tourmatebackend.states.BookingStatus.COMPLETED, com.example.tourmatebackend.states.BookingStatus.APPROVED)
+
+           """)
+    Double getTourPendingPayments(@Param("guideId") int guideId);
 
 
-
+    List<TourBooking> findTop10ByGuideIdAndStatusInOrderByBookingDateDesc(
+            int guideId, List<BookingStatus> statuses
+    );
 }
