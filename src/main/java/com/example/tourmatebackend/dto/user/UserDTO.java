@@ -1,12 +1,5 @@
 package com.example.tourmatebackend.dto.user;
-
-import com.example.tourmatebackend.model.Guide;
-import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.states.Role;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-
-import java.util.List;
 
 public class UserDTO {
     private int id;
@@ -16,7 +9,21 @@ public class UserDTO {
 
     private Role role = Role.TRAVELLER; // Default TRAVELLER
 
+    private String phoneNumber;
+
+    private byte[] profilePic;
+
     // Getters & Setters
+
+
+    public byte[] getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(byte[] profilePic) {
+        this.profilePic = profilePic;
+    }
+
     public int getId() {
         return id;
     }
@@ -52,4 +59,11 @@ public class UserDTO {
         this.role = role;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

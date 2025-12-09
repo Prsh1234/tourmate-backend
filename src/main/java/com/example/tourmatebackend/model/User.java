@@ -20,6 +20,8 @@ public class User {
 
     private String firstName;
     private String lastName;
+    @Column(unique = true)
+    private String phoneNumber;
 
     @Lob
     @Column(name = "profilePic", columnDefinition = "LONGBLOB")
@@ -31,10 +33,10 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference("user-guide")
     private Guide guide;
-
-    @OneToMany(mappedBy = "traveller", cascade = CascadeType.ALL)
-    @JsonManagedReference("user-tour")
-    private List<Tour> bookedTours; // ✅ Added — tours this user has booked
+//
+//    @OneToMany(mappedBy = "traveller", cascade = CascadeType.ALL)
+//    @JsonManagedReference("user-tour")
+//    private List<Tour> bookedTours; // ✅ Added — tours this user has booked
 
 
     // Getters & Setters
@@ -94,10 +96,18 @@ public class User {
         this.guide = guide;
     }
 
-    public List<Tour> getBookedTours() {
-        return bookedTours;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
-    public void setBookedTours(List<Tour> bookedTours) {
-        this.bookedTours = bookedTours;
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
+    //
+//    public List<Tour> getBookedTours() {
+//        return bookedTours;
+//    }
+//    public void setBookedTours(List<Tour> bookedTours) {
+//        this.bookedTours = bookedTours;
+//    }
 }

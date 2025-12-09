@@ -77,6 +77,7 @@ public class GuideRegisterController {
             response.setUserId(user.getId());
             response.setUserName(user.getFirstName() + " " + user.getLastName());
             response.setUserEmail(user.getEmail());
+            response.setPhoneNumber(user.getPhoneNumber());
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",

@@ -21,6 +21,8 @@ public class GuideRegisterResponseDTO {
     private int userId;
     private String userName;
     private String userEmail;
+    private String phoneNumber;
+
 
     public GuideRegisterResponseDTO() {}
 
@@ -118,5 +120,13 @@ public class GuideRegisterResponseDTO {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

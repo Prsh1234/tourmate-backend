@@ -72,6 +72,7 @@ public class AdminGuideController {
             dto.setCategories(g.getCategories());
             dto.setLanguages(g.getLanguages());
 
+            dto.setPhoneNumber(g.getUser().getPhoneNumber());
             dto.setUserId(g.getUser().getId());
             dto.setUserEmail(g.getUser().getEmail());
             dto.setUserName(g.getUser().getFirstName() + " " + g.getUser().getLastName());

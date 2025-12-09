@@ -36,11 +36,11 @@ public class Tour {
     @JoinColumn(name = "guide_id", nullable = false)
     @JsonBackReference("guide-tour")
     private Guide guide; // The guide who created this tour
-
-    @ManyToOne
-    @JoinColumn(name = "traveller_id")
-    @JsonBackReference("user-tour")
-    private User traveller; // The user who booked this tour (optional)
+//
+//    @ManyToOne
+//    @JoinColumn(name = "traveller_id")
+//    @JsonBackReference("user-tour")
+//    private User traveller; // The user who booked this tour (optional)
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("tour-itinerary")
@@ -167,13 +167,13 @@ public class Tour {
         this.guide = guide;
     }
 
-    public User getTraveller() {
-        return traveller;
-    }
-
-    public void setTraveller(User traveller) {
-        this.traveller = traveller;
-    }
+//    public User getTraveller() {
+//        return traveller;
+//    }
+//
+//    public void setTraveller(User traveller) {
+//        this.traveller = traveller;
+//    }
 
     public List<String> getIncluded() { return included; }
     public void setIncluded(List<String> included) { this.included = included; }

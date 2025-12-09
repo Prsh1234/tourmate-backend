@@ -19,6 +19,7 @@ public class GuideResponseDTO {
     private String userName;
     private String userEmail;
     private byte[] profilePic; // Base64 encoded
+    private String phoneNumber;
 
     // Getters & Setters
     public int getGuideId() {
@@ -93,5 +94,13 @@ public class GuideResponseDTO {
 
     public void setFavorited(boolean favorited) {
         isFavorited = favorited;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
