@@ -51,6 +51,10 @@ public class TourPaymentController {
             return ResponseEntity.badRequest()
                     .body(Map.of("status", "error", "message", "Booking is already paid."));
         }
+        if (booking.getStatus()== BookingStatus.PENDING|| booking.getStatus()== BookingStatus.DENIED || booking.getStatus()== BookingStatus.CANCELLED) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "You have not booked this tour."));
+        }
 
         // Simulate generating a mock transaction
         String mockTransactionId = "TXN-" + System.currentTimeMillis();

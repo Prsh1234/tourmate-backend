@@ -5,6 +5,7 @@ import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideBookingRepository;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.PaymentStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,10 @@ public class GuidePaymentController {
         if (booking.getPaymentStatus() == PaymentStatus.PAID) {
             return ResponseEntity.badRequest()
                     .body(Map.of("status", "error", "message", "Booking is already paid."));
+        }
+        if(booking.getStatus()== BookingStatus.PENDING|| booking.getStatus()== BookingStatus.DENIED || booking.getStatus()== BookingStatus.CANCELLED){
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "You have not booked this guide."));
         }
 
         // Simulate generating a mock transaction

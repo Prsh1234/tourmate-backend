@@ -1,10 +1,12 @@
 package com.example.tourmatebackend.controller.guide;
 
+import com.example.tourmatebackend.dto.guide.GuideDashboardDTO;
 import com.example.tourmatebackend.dto.guide.GuideUpdateResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.service.GuideService;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,8 @@ public class GuideController {
     private GuideRepository guideRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private GuideService guideService;
     @Autowired
     private JwtUtil jwtUtil;
     @PutMapping("/edit/{userId}")
@@ -105,6 +109,20 @@ public class GuideController {
                 "data", dto
         ));
 
+    }
+    @GetMapping("/dashboard")
+    public ResponseEntity<?> getGuideDashboard(@RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtUtil.extractEmail(token);
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (user == null || user.getGuide() == null) {
+            return ResponseEntity.status(403).body("Not a guide account");
+        }
+
+        GuideDashboardDTO dto = guideService.getGuideDashboard(user.getGuide().getId());
+        return ResponseEntity.ok(dto);
     }
 
 }
