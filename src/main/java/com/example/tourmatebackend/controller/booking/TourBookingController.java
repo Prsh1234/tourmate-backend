@@ -5,6 +5,7 @@ import com.example.tourmatebackend.dto.booking.tour.TourBookingRequestDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingResponseDTO;
 import com.example.tourmatebackend.model.*;
 import com.example.tourmatebackend.repository.*;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.BookingStatus;
 
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -31,6 +32,9 @@ public class TourBookingController {
     private TourRepository tourRepository;
     @Autowired
     private GuideRepository guideRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private UserRepository userRepository;
@@ -65,6 +69,13 @@ public class TourBookingController {
         booking.setTotalPrice(price);
 
         bookingRepository.save(booking);
+
+
+        notificationService.createNotification(
+                guide.getUser().getId(),
+                "Booking Request Received",
+                "You have received a request to book you guide."
+        );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Booking request submitted",
@@ -144,6 +155,12 @@ public class TourBookingController {
         // Cancel the booking
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
+        int receiver = booking.getGuide().getUser().getId();
+        notificationService.createNotification(
+                receiver,
+                "Booking Request Cancelled",
+                booking.getUser().getFirstName() + " has cancelled their request"
+        );
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",

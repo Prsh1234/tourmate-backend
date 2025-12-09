@@ -5,6 +5,7 @@ import com.example.tourmatebackend.model.TourBooking;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ public class TourBookingManagementController {
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -58,7 +60,11 @@ public class TourBookingManagementController {
 
         booking.setStatus(BookingStatus.APPROVED);
         bookingRepository.save(booking);
-
+        notificationService.createNotification(
+                booking.getUser().getId(),
+                "Booking Request Accepted",
+                booking.getGuide().getUser().getFirstName() + " has accepted the booking request"
+        );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour booking approved successfully",
@@ -121,7 +127,11 @@ public class TourBookingManagementController {
 
         booking.setStatus(BookingStatus.DENIED);
         bookingRepository.save(booking);
-
+        notificationService.createNotification(
+                booking.getUser().getId(),
+                "Booking Request Rejected",
+                booking.getGuide().getUser().getFirstName() + " has rejected the booking request"
+        );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour booking rejected successfully",

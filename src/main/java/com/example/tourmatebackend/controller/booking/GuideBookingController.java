@@ -2,11 +2,14 @@ package com.example.tourmatebackend.controller.booking;
 
 import com.example.tourmatebackend.dto.booking.guide.GuideBookingRequestDTO;
 import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
+import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.repository.GuideBookingRepository;
+import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.service.GuideBookingService;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,12 @@ public class GuideBookingController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private GuideRepository guideRepository;
+    @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private NotificationService notificationService;
     // ----------------------------
     // Book a guide (request)
     // ----------------------------
@@ -51,6 +59,13 @@ public class GuideBookingController {
         try {
             // Pass authenticated user to service
             GuideBooking booking = bookingService.createBookingRequest(request, user);
+            Guide guide = guideRepository.findById(request.getGuideId()).orElseThrow();
+
+            notificationService.createNotification(
+                    guide.getUser().getId(),
+                    "Booking Request Received",
+                    "You have received a request to book you guide."
+            );
 
             // Return proper response DTO
             return ResponseEntity.ok(Map.of(
@@ -129,6 +144,12 @@ public class GuideBookingController {
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
 
+        int receiver = booking.getGuide().getUser().getId();
+        notificationService.createNotification(
+                receiver,
+                "Booking Request Cancelled",
+                booking.getUser().getFirstName() + " has cancelled their request"
+        );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Booking cancelled successfully",

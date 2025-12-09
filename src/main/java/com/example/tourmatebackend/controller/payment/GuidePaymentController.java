@@ -5,6 +5,7 @@ import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideBookingRepository;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.PaymentStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -25,7 +26,8 @@ public class GuidePaymentController {
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -64,7 +66,11 @@ public class GuidePaymentController {
         booking.setPaymentStatus(PaymentStatus.PAID);
 
         bookingRepository.save(booking);
-
+        notificationService.createNotification(
+                booking.getGuide().getUser().getId(),
+                "Payment Received",
+                booking.getUser().getFirstName() + " has completed the payment of amount "+ booking.getTotalPrice()+ " ."
+        );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Payment simulated successfully",

@@ -3,6 +3,7 @@ package com.example.tourmatebackend.controller.admin;
 import com.example.tourmatebackend.dto.admin.GuideDecisionResponseDTO;
 import com.example.tourmatebackend.dto.admin.GuideRequestDTO;
 import com.example.tourmatebackend.model.Guide;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.GuideRepository;
@@ -30,6 +31,8 @@ public class AdminGuideController {
 
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private NotificationService notificationService;
 
     // -------------------------
     // Verify Admin From Token
@@ -129,6 +132,11 @@ public class AdminGuideController {
         GuideDecisionResponseDTO dto = new GuideDecisionResponseDTO();
         dto.setGuideId(guide.getId());
         dto.setStatus(guide.getStatus().name());
+        notificationService.createNotification(
+                guide.getUser().getId(),
+                "Registration Success",
+                "You Registration has been " +action +" ."
+        );
 
         return ResponseEntity.ok(
                 Map.of(
