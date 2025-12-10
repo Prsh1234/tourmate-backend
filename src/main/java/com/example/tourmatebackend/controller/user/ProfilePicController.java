@@ -40,7 +40,8 @@ public class ProfilePicController {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("status", "error", "message", "Invalid token"));
+                    .body(Map.of("status", "error",
+                            "message", "Invalid token"));
         }
 
         try {

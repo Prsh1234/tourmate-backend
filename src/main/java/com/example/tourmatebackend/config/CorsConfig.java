@@ -15,7 +15,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",         // React dev server
+                "http://localhost:5173",         // React dev server
                 "https://web.postman.co",        // Postman Web
                 "https://app.postman.com"        // Postman Desktop internal browser
         ));

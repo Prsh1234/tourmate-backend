@@ -53,6 +53,8 @@ public class UserController {
         response.put("firstName", user.getFirstName());
         response.put("lastName", user.getLastName());
         response.put("token", token);
+        response.put("userId", user.getId());
+        response.put("role", user.getRole().name());
 
         // Convert profilePic to Base64 string if exists
         if (user.getProfilePic() != null) {
