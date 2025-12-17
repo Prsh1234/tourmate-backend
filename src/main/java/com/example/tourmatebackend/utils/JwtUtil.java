@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     private final String SECRET_KEY = "my_super_secret_key_that_is_at_least_32_chars!"; // must be 32+ chars
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 hour
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
     public String generateToken(String email) {

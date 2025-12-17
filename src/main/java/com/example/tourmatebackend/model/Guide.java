@@ -1,11 +1,14 @@
 package com.example.tourmatebackend.model;
 
 import com.example.tourmatebackend.states.Category;
+import com.example.tourmatebackend.states.GuideExperience;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.states.Language;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -16,39 +19,21 @@ public class Guide {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String expertise;
-    private String bio;
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    private String location;
-
-    private Double price;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))
-    @Column(name = "category")
+    //bio
+    private String fullName;
+    private String email;
+    private String phoneNumber;
+    @ElementCollection(targetClass = GuideExperience.class)
     @Enumerated(EnumType.STRING)
-    private List<Category> categories;
+    private List<GuideExperience> experience;
 
     @ElementCollection(targetClass = Language.class)
     @Enumerated(EnumType.STRING)
     private List<Language> languages;
 
+
+
+    //MISC
     @Enumerated(EnumType.STRING)
     private GuideStatus status = GuideStatus.PENDING; // PENDING, APPROVED, REJECTED
 
@@ -60,43 +45,84 @@ public class Guide {
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("guide-tour")
     private List<Tour> tours; // ✅ Added — list of tours created by this guide
-    @Transient
+
+    //skills and expertise
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "guide_categories", joinColumns = @JoinColumn(name = "guide_id"))
+    @Column(name = "category")
+    @Enumerated(EnumType.STRING)
+    private List<Category> categories;
+
+    private String bio;
+    private Double price;
+
+    @Lob
+    @Column(name = "profilePic", columnDefinition = "LONGBLOB")
     private byte[] profilePic;
 
-    public byte[] getProfilePic() {
-        // fetch from User entity automatically
-        if (user != null) {
-            return user.getProfilePic();
-        }
-        return null;
-    }
-
+    //government details
+    @Lob
+    @Column(name = "governmentPic", columnDefinition = "LONGBLOB")
+    private byte[] governmentPic;
+    private  String governmentNumber;
+    private LocalDate dob;
 
     // Getters & Setters
+
+
+
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
 
-    public String getExpertise() {
-        return expertise;
-    }
-    public void setExpertise(String expertise) {
-        this.expertise = expertise;
+    public String getFullName() {
+        return fullName;
     }
 
-    public String getBio() {
-        return bio;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
-    public void setBio(String bio) {
-        this.bio = bio;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public List<GuideExperience> getExperience() {
+        return experience;
+    }
+
+    public void setExperience(List<GuideExperience> experience) {
+        this.experience = experience;
+    }
+
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
     }
 
     public GuideStatus getStatus() {
         return status;
     }
+
     public void setStatus(GuideStatus status) {
         this.status = status;
     }
@@ -104,6 +130,7 @@ public class Guide {
     public User getUser() {
         return user;
     }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -111,9 +138,11 @@ public class Guide {
     public List<Tour> getTours() {
         return tours;
     }
+
     public void setTours(List<Tour> tours) {
         this.tours = tours;
     }
+
     public List<Category> getCategories() {
         return categories;
     }
@@ -122,14 +151,51 @@ public class Guide {
         this.categories = categories;
     }
 
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public byte[] getProfilePic() {
+        return profilePic;
+    }
+
     public void setProfilePic(byte[] profilePic) {
         this.profilePic = profilePic;
     }
-    public List<Language> getLanguages() {
-        return languages;
+
+    public byte[] getGovernmentPic() {
+        return governmentPic;
     }
 
-    public void setLanguages(List<Language> languages) {
-        this.languages = languages;
+    public void setGovernmentPic(byte[] governmentPic) {
+        this.governmentPic = governmentPic;
+    }
+
+    public String getGovernmentNumber() {
+        return governmentNumber;
+    }
+
+    public void setGovernmentNumber(String governmentNumber) {
+        this.governmentNumber = governmentNumber;
+    }
+
+    public LocalDate getDob() {
+        return dob;
+    }
+
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
     }
 }

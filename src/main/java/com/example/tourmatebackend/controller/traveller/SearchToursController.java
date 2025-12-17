@@ -60,7 +60,6 @@ public class SearchToursController {
         dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
-        dto.setGuideExpertise(tour.getGuide().getExpertise());
         int currentUserId = extractUserId(authHeader);
 
         dto.setFavorited(
@@ -169,4 +168,17 @@ public class SearchToursController {
                         .body(Map.of("status", "error", "message", "Tour not found.")));
     }
 
+    @GetMapping("/tours/guide/{guideId}")
+    public ResponseEntity<?> getTourByGuide(@PathVariable int guideId,
+                                         @RequestHeader("Authorization") String authHeader) {
+        List<Tour> tours = tourRepository.findByGuideIdAndStatus(guideId, TourStatus.POSTED);
+        List<TourResponseDTO> dtos = tours.stream()
+                .map(t -> mapToDTO(t, authHeader))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Tours fetched successfully.",
+                "data", dtos
+        ));
+    }
 }

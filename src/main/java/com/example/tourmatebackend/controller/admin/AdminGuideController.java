@@ -66,19 +66,23 @@ public class AdminGuideController {
                 .filter(g -> g.getStatus() == GuideStatus.PENDING)
                 .collect(Collectors.toList());
 
-        List<GuideRequestDTO> dtoList = pendingGuides.stream().map(g -> {
+        List<GuideRequestDTO> dtoList = pendingGuides.stream().map(guide -> {
             GuideRequestDTO dto = new GuideRequestDTO();
-            dto.setGuideId(g.getId());
-            dto.setExpertise(g.getExpertise());
-            dto.setBio(g.getBio());
-            dto.setStatus(g.getStatus().name());
-            dto.setCategories(g.getCategories());
-            dto.setLanguages(g.getLanguages());
+            dto.setFullName(guide.getFullName());
+            dto.setEmail(guide.getEmail());
+            dto.setPhoneNumber(guide.getPhoneNumber());
+            dto.setExperience(guide.getExperience());
+            dto.setLanguages(guide.getLanguages());
+            dto.setCategories(guide.getCategories());
+            dto.setBio(guide.getBio());
+            dto.setPrice(guide.getPrice());
+            dto.setProfilePic(guide.getProfilePic());
+            dto.setGovernmentPic(guide.getGovernmentPic());
+            dto.setGovernmentNumber(guide.getGovernmentNumber());
+            dto.setDob(guide.getDob()); // ✅ LocalDate
+            dto.setStatus(GuideStatus.PENDING);
+            dto.setUserId(guide.getUser().getId());
 
-            dto.setPhoneNumber(g.getUser().getPhoneNumber());
-            dto.setUserId(g.getUser().getId());
-            dto.setUserEmail(g.getUser().getEmail());
-            dto.setUserName(g.getUser().getFirstName() + " " + g.getUser().getLastName());
 
             return dto;
         }).collect(Collectors.toList());

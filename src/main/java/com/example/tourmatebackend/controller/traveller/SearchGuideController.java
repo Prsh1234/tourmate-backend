@@ -98,8 +98,8 @@ public class SearchGuideController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Guide> dbPage = guideRepository
-                .findByStatusAndLocationContainingIgnoreCaseAndPriceBetween(
-                        GuideStatus.APPROVED, location, minPrice, maxPrice, pageable
+                .findByStatusContainingIgnoreCaseAndPriceBetween(
+                        GuideStatus.APPROVED, minPrice, maxPrice, pageable
                 );
 
         List<GuideResponseDTO> filtered = dbPage.getContent().stream()
@@ -144,26 +144,29 @@ public class SearchGuideController {
     // Convert Guide → GuideResponseDTO
     // ========================
     private GuideResponseDTO mapToDTO(Guide g, String authHeader) {
+
         User u = g.getUser();
         GuideResponseDTO dto = new GuideResponseDTO();
+
         dto.setGuideId(g.getId());
-        dto.setExpertise(g.getExpertise());
         dto.setBio(g.getBio());
-        dto.setLocation(g.getLocation());
         dto.setPrice(g.getPrice());
         dto.setCategories(g.getCategories());
         dto.setLanguages(g.getLanguages());
+        dto.setEmail(g.getEmail());
+        dto.setFullName(g.getFullName());
+        dto.setUserId(g.getUser().getId());
+        dto.setPhoneNumber(g.getPhoneNumber());
+        dto.setProfilePic(g.getProfilePic());
+
         int currentUserId = extractUserId(authHeader);
 
         dto.setFavorited(
                 favouriteRepository.existsByUserIdAndGuideId(currentUserId, g.getId())
         );
-        dto.setUserId(u.getId());
-        dto.setUserName(u.getFirstName() + " " + u.getLastName());
-        dto.setUserEmail(u.getEmail());
-        if(u.getProfilePic()!=null)dto.setProfilePic(encodeImage(u.getProfilePic()).getBytes());
-        dto.setPhoneNumber(u.getPhoneNumber());
+
 
         return dto;
     }
+
 }

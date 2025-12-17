@@ -12,6 +12,9 @@ public class GuideBookingResponseDTO {
     private String status;
     private String paymentStatus;
 
+    private String bookedBy;
+    private int bookerId;
+
 
     private String paymentTransactionId;
 
@@ -27,9 +30,29 @@ public class GuideBookingResponseDTO {
         this.status = booking.getStatus().name(); // PENDING, APPROVED, REJECTED
         this.paymentStatus = booking.getPaymentStatus().name();
         this.paymentTransactionId = booking.getPaymentTransactionId();
+        this.bookedBy = booking.getUser().getFirstName();
+        this.bookerId = booking.getUser().getId();
     }
 
     // Getters only (Spring can serialize)
+
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public String getBookedBy() {
+        return bookedBy;
+    }
+
+    public int getBookerId() {
+        return bookerId;
+    }
+
+    public String getPaymentTransactionId() {
+        return paymentTransactionId;
+    }
+
     public int getBookingId() { return bookingId; }
     public int getGuideId() { return guideId; }
     public String getGuideName() { return guideName; }

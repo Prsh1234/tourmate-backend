@@ -11,6 +11,9 @@ import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.states.GuideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 public class GuideService {
@@ -91,20 +94,32 @@ public class GuideService {
     }
 
 
-    public Guide registerGuide(User user, GuideRegisterRequestDTO dto) {
+    public Guide registerGuide(User user, GuideRegisterRequestDTO dto, MultipartFile profilePic, MultipartFile governmentPic) throws IOException, IOException {
         Guide guide = new Guide();
 
-        guide.setUser(user);
-        guide.setExpertise(dto.getExpertise());
-        guide.setBio(dto.getBio());
-        guide.setCategories(dto.getCategories());
+        guide.setFullName(dto.getFullName());
+        guide.setEmail(dto.getEmail());
+        guide.setPhoneNumber(dto.getPhoneNumber());
+        guide.setExperience(dto.getExperience());
         guide.setLanguages(dto.getLanguages());
+        guide.setCategories(dto.getCategories());
+        guide.setBio(dto.getBio());
         guide.setPrice(dto.getPrice());
-        guide.setLocation(dto.getLocation());
-        guide.setStatus(GuideStatus.PENDING);
+        guide.setGovernmentNumber(dto.getGovernmentNumber());
+        guide.setDob(dto.getDob());
+        guide.setUser(user);
+
+        if (profilePic != null && !profilePic.isEmpty()) {
+            guide.setProfilePic(profilePic.getBytes());
+        }
+
+        if (governmentPic != null && !governmentPic.isEmpty()) {
+            guide.setGovernmentPic(governmentPic.getBytes());
+        }
 
         return guideRepository.save(guide);
     }
+
 
 
 }

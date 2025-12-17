@@ -23,17 +23,15 @@ public class FavouriteService {
         GuideResponseDTO dto = new GuideResponseDTO();
 
         dto.setGuideId(guide.getId());
-        dto.setExpertise(guide.getExpertise());
         dto.setBio(guide.getBio());
-        dto.setLocation(guide.getLocation());
         dto.setPrice(guide.getPrice());
         dto.setCategories(guide.getCategories());
         dto.setLanguages(guide.getLanguages());
 
         // User details
         dto.setUserId(guide.getUser().getId());
-        dto.setUserName(guide.getUser().getFirstName() + " " + guide.getUser().getLastName());
-        dto.setUserEmail(guide.getUser().getEmail());
+        dto.setFullName(guide.getFullName());
+        dto.setEmail(guide.getEmail());
         dto.setProfilePic(guide.getUser().getProfilePic());
 
         return dto;
@@ -54,7 +52,6 @@ public class FavouriteService {
         dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
-        dto.setGuideExpertise(tour.getGuide().getExpertise());
         dto.setFavorited(true);
         dto.setItineraries(
                 tour.getItineraries()

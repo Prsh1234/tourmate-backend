@@ -1,62 +1,64 @@
 package com.example.tourmatebackend.dto.guideRegistration;
 
 import com.example.tourmatebackend.states.Category;
+import com.example.tourmatebackend.states.GuideExperience;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.states.Language;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class GuideRegisterResponseDTO {
 
+    private int userId;
+
     private int guideId;
-    private String expertise;
-    private String bio;
-    private String location;
-    private Double price;
-    private List<Category> categories;
+    private String fullName;
+    private String email;
+    private String phoneNumber;
+    private List<GuideExperience> experience;
     private List<Language> languages;
+    private List<Category> categories;
+    private String bio;
+    private Double price;
+
     private GuideStatus status;
+
     private byte[] profilePic;
 
-    private int userId;
-    private String userName;
-    private String userEmail;
-    private String phoneNumber;
-
+    //government details
+    private byte[] governmentPic;
+    private  String governmentNumber;
+    private LocalDate dob;
 
     public GuideRegisterResponseDTO() {}
 
-    public int getGuideId() {
-        return guideId;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setGuideId(int guideId) {
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getGuideId(){return guideId;}
+    public void setGuideId(int guideId){
         this.guideId = guideId;
     }
-
-    public String getExpertise() {
-        return expertise;
-    }
-
-    public void setExpertise(String expertise) {
-        this.expertise = expertise;
-    }
-
     public String getBio() {
         return bio;
     }
-
+    public GuideStatus getStatus(){
+        return status;
+    }
+    public void setStatus(GuideStatus status){
+        this.status = status;
+    }
     public void setBio(String bio) {
         this.bio = bio;
     }
 
-    public String getLocation() {
-        return location;
-    }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
 
     public Double getPrice() {
         return price;
@@ -82,12 +84,36 @@ public class GuideRegisterResponseDTO {
         this.languages = languages;
     }
 
-    public GuideStatus getStatus() {
-        return status;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setStatus(GuideStatus status) {
-        this.status = status;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public List<GuideExperience> getExperience() {
+        return experience;
+    }
+
+    public void setExperience(List<GuideExperience> experience) {
+        this.experience = experience;
     }
 
     public byte[] getProfilePic() {
@@ -98,35 +124,27 @@ public class GuideRegisterResponseDTO {
         this.profilePic = profilePic;
     }
 
-    public int getUserId() {
-        return userId;
+    public byte[] getGovernmentPic() {
+        return governmentPic;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setGovernmentPic(byte[] governmentPic) {
+        this.governmentPic = governmentPic;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getGovernmentNumber() {
+        return governmentNumber;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setGovernmentNumber(String governmentNumber) {
+        this.governmentNumber = governmentNumber;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public LocalDate getDob() {
+        return dob;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
     }
 }

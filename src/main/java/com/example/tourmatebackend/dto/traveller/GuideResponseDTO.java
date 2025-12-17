@@ -8,7 +8,6 @@ import java.util.List;
 public class GuideResponseDTO {
 
     private int guideId;
-    private String expertise;
     private String bio;
     private String location;
     private Double price;
@@ -16,8 +15,8 @@ public class GuideResponseDTO {
     private List<Language> languages;
     private boolean isFavorited;
     private int userId;
-    private String userName;
-    private String userEmail;
+    private String fullName;
+    private String email;
     private byte[] profilePic; // Base64 encoded
     private String phoneNumber;
 
@@ -28,12 +27,7 @@ public class GuideResponseDTO {
     public void setGuideId(int guideId) {
         this.guideId = guideId;
     }
-    public String getExpertise() {
-        return expertise;
-    }
-    public void setExpertise(String expertise) {
-        this.expertise = expertise;
-    }
+
     public String getBio() {
         return bio;
     }
@@ -70,17 +64,17 @@ public class GuideResponseDTO {
     public void setUserId(int userId) {
         this.userId = userId;
     }
-    public String getUserName() {
-        return userName;
+    public String getFullName() {
+        return fullName;
     }
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
-    public String getUserEmail() {
-        return userEmail;
+    public String getEmail() {
+        return email;
     }
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
     public byte[] getProfilePic() {
         return profilePic;

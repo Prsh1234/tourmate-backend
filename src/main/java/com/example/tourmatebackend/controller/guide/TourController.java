@@ -61,7 +61,6 @@ public class TourController {
         dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
-        dto.setGuideExpertise(tour.getGuide().getExpertise());
         dto.setItineraries(
                 tour.getItineraries()
                         .stream()
