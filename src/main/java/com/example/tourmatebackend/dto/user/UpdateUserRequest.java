@@ -5,8 +5,19 @@ public class UpdateUserRequest {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private String bio;
 
     // Getters and Setters
+
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     public String getFirstName() {
         return firstName;
     }

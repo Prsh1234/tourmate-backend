@@ -23,6 +23,7 @@ public class Guide {
     private String fullName;
     private String email;
     private String phoneNumber;
+    private String location;
     @ElementCollection(targetClass = GuideExperience.class)
     @Enumerated(EnumType.STRING)
     private List<GuideExperience> experience;
@@ -70,6 +71,13 @@ public class Guide {
     // Getters & Setters
 
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public int getId() {
         return id;

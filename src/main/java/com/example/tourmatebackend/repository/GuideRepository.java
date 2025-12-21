@@ -15,7 +15,7 @@ public interface GuideRepository extends JpaRepository<Guide, Integer> {
 
     Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
 
-    Page<Guide> findByStatusContainingIgnoreCaseAndPriceBetween(
+    Page<Guide> findByStatusAndPriceBetween(
             GuideStatus status,
             Double minPrice,
             Double maxPrice,

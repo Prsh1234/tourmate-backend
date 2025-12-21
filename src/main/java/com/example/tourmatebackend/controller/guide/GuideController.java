@@ -92,7 +92,11 @@ public class GuideController {
 
             if (guideRequest.getPrice() != null)
                 existingGuide.setPrice(guideRequest.getPrice());
+            if(guideRequest.getLocation() != null){
+                existingGuide.setLocation(guideRequest.getLocation());
+            }
         }
+
 
         if (file != null && !file.isEmpty()) {
             existingGuide.setProfilePic(file.getBytes());

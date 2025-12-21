@@ -82,6 +82,7 @@ public class AdminGuideController {
             dto.setDob(guide.getDob()); // ✅ LocalDate
             dto.setStatus(GuideStatus.PENDING);
             dto.setUserId(guide.getUser().getId());
+            dto.setLocation(guide.getLocation());
 
 
             return dto;

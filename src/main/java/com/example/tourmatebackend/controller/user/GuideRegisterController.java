@@ -81,6 +81,7 @@ public class GuideRegisterController {
             response.setDob(guide.getDob());
             response.setStatus(guide.getStatus());
             response.setUserId(guide.getUser().getId());
+            response.setLocation(guide.getLocation());
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",

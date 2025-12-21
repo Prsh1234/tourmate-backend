@@ -55,13 +55,12 @@ public class UserController {
         response.put("token", token);
         response.put("userId", user.getId());
         response.put("role", user.getRole().name());
+        response.put("bio",user.getBio());
+        response.put("phoneNumber",user.getPhoneNumber());
 
-        // Convert profilePic to Base64 string if exists
         if (user.getProfilePic() != null) {
-            String base64Pic = Base64.getEncoder().encodeToString(user.getProfilePic());
-            response.put("profilePic", base64Pic);
+            response.put("profilePic", user.getProfilePic());
         }
-
         return response;
     }
     @PutMapping("/update/{userId}")
@@ -95,6 +94,9 @@ public class UserController {
 
             if (request.getPhoneNumber() != null)
                 user.setPhoneNumber(request.getPhoneNumber());
+            if (request.getBio() != null){
+                user.setBio(request.getBio());
+            }
 
             userRepository.save(user);
 

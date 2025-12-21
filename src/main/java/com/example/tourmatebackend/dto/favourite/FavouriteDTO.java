@@ -11,15 +11,20 @@ public class FavouriteDTO {
     private GuideResponseDTO guide;
     private TourResponseDTO tour;
 
+    private double averageRating;
+    private double totalReviews;
     private LocalDateTime createdAt;
 
-    public FavouriteDTO(Long id, String type, GuideResponseDTO guide, TourResponseDTO tour, LocalDateTime createdAt) {
+    public FavouriteDTO(Long id, String type, GuideResponseDTO guide, TourResponseDTO tour, LocalDateTime createdAt, double averageRating, double totalReviews) {
         this.id = id;
         this.type = type;
         this.guide = guide;
         this.tour = tour;
         this.createdAt = createdAt;
+        this.averageRating = averageRating;
+        this.totalReviews = totalReviews;
     }
+
 
 // getters + setters
 
@@ -62,5 +67,21 @@ public class FavouriteDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public double getTotalReviews() {
+        return totalReviews;
+    }
+
+    public void setTotalReviews(double totalReviews) {
+        this.totalReviews = totalReviews;
     }
 }

@@ -2,9 +2,11 @@ package com.example.tourmatebackend.controller.traveller;
 
 import com.example.tourmatebackend.dto.traveller.GuideResponseDTO;
 import com.example.tourmatebackend.model.Guide;
+import com.example.tourmatebackend.model.GuideReview;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.FavouriteRepository;
 import com.example.tourmatebackend.repository.GuideRepository;
+import com.example.tourmatebackend.repository.GuideReviewRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -31,7 +33,8 @@ public class SearchGuideController {
     private GuideRepository guideRepository;
     @Autowired
     private JwtUtil jwtUtil;
-
+    @Autowired
+    private GuideReviewRepository guideReviewRepository;
     @Autowired
     private UserRepository userRepository;
     private int extractUserId(String authHeader) {
@@ -79,35 +82,49 @@ public class SearchGuideController {
     // ========================
     @GetMapping("/filter")
     public ResponseEntity<?> filterGuides(
-            @RequestParam(defaultValue = "") String location,
+            @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "0") Double minPrice,
-            @RequestParam(defaultValue = "99999999") Double maxPrice,
+            @RequestParam(defaultValue = "99999999999") Double maxPrice,
             @RequestParam(defaultValue = "price") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) List<String> category,
             @RequestParam(required = false) List<String> language,
+            @RequestParam(defaultValue = "0") int rating,
             @RequestHeader("Authorization") String authHeader
-
     ) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        // Only sort by DB column (price), ignore rating here
+        Sort sort = Sort.by(sortBy.equalsIgnoreCase("price") ? "price" : "id"); // fallback to id if not price
+        sort = sortDir.equalsIgnoreCase("desc") ? sort.descending() : sort.ascending();
+
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Guide> dbPage = guideRepository
-                .findByStatusContainingIgnoreCaseAndPriceBetween(
-                        GuideStatus.APPROVED, minPrice, maxPrice, pageable
-                );
+        // Fetch guides from DB by price and status
+        Page<Guide> dbPage = guideRepository.findByStatusAndPriceBetween(
+                GuideStatus.APPROVED, minPrice, maxPrice, pageable
+        );
 
+        // Map to DTO and filter by rating in-memory
         List<GuideResponseDTO> filtered = dbPage.getContent().stream()
                 .filter(g -> category == null || category.isEmpty()
                         || g.getCategories().stream().map(Enum::name).anyMatch(category::contains))
                 .filter(g -> language == null || language.isEmpty()
                         || g.getLanguages().stream().map(Enum::name).anyMatch(language::contains))
                 .map(g -> mapToDTO(g, authHeader))
+                .filter(dto -> dto.getAverageRating() >= rating) // in-memory rating filter
+                .filter(dto -> search.isEmpty() ||
+                        dto.getFullName().toLowerCase().contains(search.toLowerCase()) ||
+                        dto.getLocation().toLowerCase().contains(search.toLowerCase()))
+                .sorted((a, b) -> {
+                    if ("rating".equalsIgnoreCase(sortBy)) {
+                        return "desc".equalsIgnoreCase(sortDir)
+                                ? Double.compare(b.getAverageRating(), a.getAverageRating())
+                                : Double.compare(a.getAverageRating(), b.getAverageRating());
+                    }
+                    return 0; // price sorting handled by DB
+                })
                 .toList();
 
         return ResponseEntity.ok(Map.of(
@@ -120,6 +137,7 @@ public class SearchGuideController {
                 "totalPages", dbPage.getTotalPages()
         ));
     }
+
 
     // ========================
     // GET SINGLE GUIDE
@@ -145,7 +163,6 @@ public class SearchGuideController {
     // ========================
     private GuideResponseDTO mapToDTO(Guide g, String authHeader) {
 
-        User u = g.getUser();
         GuideResponseDTO dto = new GuideResponseDTO();
 
         dto.setGuideId(g.getId());
@@ -158,6 +175,11 @@ public class SearchGuideController {
         dto.setUserId(g.getUser().getId());
         dto.setPhoneNumber(g.getPhoneNumber());
         dto.setProfilePic(g.getProfilePic());
+        dto.setLocation(g.getLocation());
+        List<GuideReview> reviews = guideReviewRepository.findByGuideId(g.getId());
+        double avgRating = reviews.stream().mapToInt(GuideReview::getRating).average().orElse(0.0);
+        dto.setAverageRating(avgRating);
+        dto.setTotalReviews(reviews.size());
 
         int currentUserId = extractUserId(authHeader);
 

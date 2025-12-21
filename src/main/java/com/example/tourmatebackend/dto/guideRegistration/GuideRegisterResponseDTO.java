@@ -11,7 +11,7 @@ import java.util.List;
 public class GuideRegisterResponseDTO {
 
     private int userId;
-
+    private String location;
     private int guideId;
     private String fullName;
     private String email;
@@ -32,6 +32,14 @@ public class GuideRegisterResponseDTO {
     private LocalDate dob;
 
     public GuideRegisterResponseDTO() {}
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public int getUserId() {
         return userId;

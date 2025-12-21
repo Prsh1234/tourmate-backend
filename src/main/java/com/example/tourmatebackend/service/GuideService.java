@@ -108,6 +108,7 @@ public class GuideService {
         guide.setGovernmentNumber(dto.getGovernmentNumber());
         guide.setDob(dto.getDob());
         guide.setUser(user);
+        guide.setLocation(dto.getLocation());
 
         if (profilePic != null && !profilePic.isEmpty()) {
             guide.setProfilePic(profilePic.getBytes());

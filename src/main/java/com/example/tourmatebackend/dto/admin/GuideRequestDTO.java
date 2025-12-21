@@ -19,6 +19,7 @@ public class GuideRequestDTO {
     private List<GuideExperience> experience;
     private List<Language> languages;
     private List<Category> categories;
+    private String location;
     private String bio;
     private Double price;
 
@@ -32,6 +33,14 @@ public class GuideRequestDTO {
     private LocalDate dob;
 
     public GuideRequestDTO() {}
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public int getUserId() {
         return userId;

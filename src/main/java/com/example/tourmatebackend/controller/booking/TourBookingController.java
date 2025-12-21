@@ -51,9 +51,7 @@ public class TourBookingController {
         Tour tour = tourRepository.findById(req.getTourId()).orElse(null);
         User user = userRepository.findById(req.getUserId()).orElse(null);
         Guide guide = guideRepository.findById(req.getGuideId()).orElse(null);
-        System.out.println(tour);
-        System.out.println(guide);
-        System.out.println(user);
+
 
         if (tour == null || user == null || guide == null) {
             return ResponseEntity.badRequest().body("Invalid user, tour or guide ID");

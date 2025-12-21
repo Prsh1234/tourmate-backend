@@ -23,6 +23,7 @@ public class UserService {
         dto.setRole(user.getRole());
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setProfilePic(user.getProfilePic());
+        dto.setBio(user.getBio());
         return dto;
     }
     public UserDTO getLoggedInUser(String token) {

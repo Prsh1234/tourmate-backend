@@ -2,23 +2,41 @@ package com.example.tourmatebackend.service;
 
 import com.example.tourmatebackend.dto.favourite.FavouriteDTO;
 import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
+import com.example.tourmatebackend.dto.review.ReviewResponseDTO;
 import com.example.tourmatebackend.dto.traveller.GuideResponseDTO;
 import com.example.tourmatebackend.dto.traveller.TourResponseDTO;
 import com.example.tourmatebackend.model.Favourite;
 import com.example.tourmatebackend.model.Guide;
+import com.example.tourmatebackend.model.GuideReview;
 import com.example.tourmatebackend.model.Tour;
-import com.example.tourmatebackend.repository.FavouriteRepository;
-import com.example.tourmatebackend.repository.GuideRepository;
-import com.example.tourmatebackend.repository.TourRepository;
-import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class FavouriteService {
 
+    @Autowired
+    private FavouriteRepository favoriteRepository;
+
+    @Autowired
+    private GuideRepository guideRepository;
+
+    @Autowired
+    private TourRepository tourRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private GuideReviewRepository guideReviewRepository;
+
+    @Autowired
+    private ReviewService reviewService;
     private GuideResponseDTO mapGuideToDTO(Guide guide) {
         GuideResponseDTO dto = new GuideResponseDTO();
 
@@ -27,12 +45,12 @@ public class FavouriteService {
         dto.setPrice(guide.getPrice());
         dto.setCategories(guide.getCategories());
         dto.setLanguages(guide.getLanguages());
-
+        dto.setLocation(guide.getLocation());
         // User details
         dto.setUserId(guide.getUser().getId());
         dto.setFullName(guide.getFullName());
-        dto.setEmail(guide.getEmail());
-        dto.setProfilePic(guide.getUser().getProfilePic());
+        dto.setEmail(guide.getUser().getEmail());
+        dto.setProfilePic(guide.getProfilePic());
 
         return dto;
     }
@@ -68,19 +86,23 @@ public class FavouriteService {
         return dto;
     }
     private FavouriteDTO mapToDTO(Favourite fav) {
-
         String type = fav.getGuide() != null ? "GUIDE" : "TOUR";
 
         GuideResponseDTO guideDTO = null;
         TourResponseDTO tourDTO = null;
+        double avgRating = 0;
+        double totalReviews = 0;
 
-        // Map Guide → GuideResponseDTO
         if (fav.getGuide() != null) {
             guideDTO = mapGuideToDTO(fav.getGuide());
             guideDTO.setFavorited(true);
+
+            // Calculate ratings
+            List<GuideReview> reviews = guideReviewRepository.findByGuideId(fav.getGuide().getId());
+            avgRating = reviewService.calculateGuideAverageRating(reviews);
+            totalReviews = reviews.size();
         }
 
-        // Map Tour → TourResponseDTO
         if (fav.getTour() != null) {
             tourDTO = mapTourToDTO(fav.getTour());
             tourDTO.setFavorited(true);
@@ -91,20 +113,13 @@ public class FavouriteService {
                 type,
                 guideDTO,
                 tourDTO,
-                fav.getCreatedAt()
+                fav.getCreatedAt(),
+                avgRating,
+                totalReviews
         );
     }
 
-    @Autowired
-    private FavouriteRepository favoriteRepository;
 
-    @Autowired
-    private GuideRepository guideRepository;
-
-    @Autowired
-    private TourRepository tourRepository;
-    @Autowired
-    private UserRepository userRepository;
 
     @Transactional
     public String toggleGuideFavorite(int userId, int guideId) {
@@ -140,11 +155,26 @@ public class FavouriteService {
         return "Tour favorited";
     }
     public List<FavouriteDTO> getFavouriteGuides(int userId) {
+        // Fetch all favourite guides for the user
         return favoriteRepository.findByUserIdAndType(userId, "GUIDE")
                 .stream()
-                .map(this::mapToDTO)
+                .map(fav -> {
+                    Guide guide = fav.getGuide();
+
+                    // Fetch reviews for this guide
+                    List<GuideReview> reviews = guideReviewRepository.findByGuideId(guide.getId());
+                    double avgRating = reviewService.calculateGuideAverageRating(reviews);
+
+                    // Map to DTO and include rating info
+                    FavouriteDTO dto = mapToDTO(fav);
+                    dto.setAverageRating(avgRating);
+                    dto.setTotalReviews(reviews.size());
+
+                    return dto;
+                })
                 .toList();
     }
+
 
     public List<FavouriteDTO> getFavouriteTours(int userId) {
         return favoriteRepository.findByUserIdAndType(userId, "TOUR")

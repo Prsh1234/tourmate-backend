@@ -19,8 +19,27 @@ public class GuideResponseDTO {
     private String email;
     private byte[] profilePic; // Base64 encoded
     private String phoneNumber;
+    private Double averageRating;
+    private int totalReviews;
 
     // Getters & Setters
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getTotalReviews() {
+        return totalReviews;
+    }
+
+    public void setTotalReviews(int totalReviews) {
+        this.totalReviews = totalReviews;
+    }
+
     public int getGuideId() {
         return guideId;
     }

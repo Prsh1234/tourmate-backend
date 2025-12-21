@@ -14,10 +14,10 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String email;
-
     @Column(nullable = true)
     private String password; // Nullable for Google users
 
+    private String bio;
     private String firstName;
     private String lastName;
     @Column(unique = true)
@@ -73,6 +73,14 @@ public class User {
     }
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public byte[] getProfilePic() {
