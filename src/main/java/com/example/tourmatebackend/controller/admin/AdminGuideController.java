@@ -83,6 +83,11 @@ public class AdminGuideController {
             dto.setStatus(GuideStatus.PENDING);
             dto.setUserId(guide.getUser().getId());
             dto.setLocation(guide.getLocation());
+            dto.setCreatedAt(guide.getCreatedAt());
+            dto.setGuideId(guide.getId());
+            dto.setAccountNumber(guide.getAccountNumber());
+            dto.setBankName(guide.getBankName());
+            dto.setAccountHolderName(guide.getAccountHolderName());
 
 
             return dto;

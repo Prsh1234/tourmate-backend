@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -18,7 +19,7 @@ public class Guide {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    private LocalDateTime createdAt = LocalDateTime.now();
     //bio
     private String fullName;
     private String email;
@@ -32,7 +33,13 @@ public class Guide {
     @Enumerated(EnumType.STRING)
     private List<Language> languages;
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     //MISC
     @Enumerated(EnumType.STRING)
@@ -68,8 +75,40 @@ public class Guide {
     private  String governmentNumber;
     private LocalDate dob;
 
+
+    //Bank details
+
+    private String bankName;
+    private String accountHolderName;
+    private String accountNumber;
+
+
     // Getters & Setters
 
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
 
     public String getLocation() {
         return location;

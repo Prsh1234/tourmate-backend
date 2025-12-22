@@ -3,16 +3,6 @@ package com.example.tourmatebackend.dto.booking.guide;
 public class GuideBookingRequestDTO {
     private int guideId;
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    private int userId;
-
     public int getGuideId() {
         return guideId;
     }

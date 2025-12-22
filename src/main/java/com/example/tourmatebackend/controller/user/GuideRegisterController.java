@@ -53,43 +53,39 @@ public class GuideRegisterController {
             @RequestPart(value = "governmentPic", required = false) MultipartFile governmentPic
     ) {
         try {
+            System.out.println("Received guideJson: " + guideJson);
             GuideRegisterRequestDTO guideRequest = objectMapper.readValue(guideJson, GuideRegisterRequestDTO.class);
 
             // Now proceed as before
             User tokenUser = userRepository.findByEmail(jwtUtil.extractEmail(authHeader.replace("Bearer ", ""))).orElseThrow();
             if (tokenUser.getId() != userId) {
+
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
                         "status", "error",
                         "message", "Access denied!"
                 ));
             }
+
+            if (governmentPic != null) {
+                guideRequest.setGovernmentPic(governmentPic.getBytes());
+            }
+            if (profilePic != null) {
+                guideRequest.setProfilePic(profilePic.getBytes());
+            }
+
             User user = userRepository.findById(userId).orElseThrow();
             Guide guide = guideService.registerGuide(user, guideRequest, profilePic, governmentPic);
 
-            GuideRegisterResponseDTO response = new GuideRegisterResponseDTO();
-            response.setFullName(guide.getFullName());
-            response.setEmail(guide.getEmail());
-            response.setPhoneNumber(guide.getPhoneNumber());
-            response.setExperience(guide.getExperience());
-            response.setLanguages(guide.getLanguages());
-            response.setCategories(guide.getCategories());
-            response.setBio(guide.getBio());
-            response.setPrice(guide.getPrice());
-            response.setProfilePic(guide.getProfilePic());
-            response.setGovernmentPic(guide.getGovernmentPic());
-            response.setGovernmentNumber(guide.getGovernmentNumber());
-            response.setDob(guide.getDob());
-            response.setStatus(guide.getStatus());
-            response.setUserId(guide.getUser().getId());
-            response.setLocation(guide.getLocation());
+
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "message", "Guide registration request submitted",
-                    "data", response
+                    "message", "Guide registration request submitted"
             ));
 
         } catch (Exception e) {
+
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", "error",
                     "message", e.getMessage()
