@@ -53,7 +53,6 @@ public class GuideRegisterController {
             @RequestPart(value = "governmentPic", required = false) MultipartFile governmentPic
     ) {
         try {
-            System.out.println("Received guideJson: " + guideJson);
             GuideRegisterRequestDTO guideRequest = objectMapper.readValue(guideJson, GuideRegisterRequestDTO.class);
 
             // Now proceed as before

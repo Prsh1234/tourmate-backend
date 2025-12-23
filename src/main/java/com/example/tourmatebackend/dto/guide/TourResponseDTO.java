@@ -3,6 +3,8 @@ package com.example.tourmatebackend.dto.guide;
 import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.Language;
 import com.example.tourmatebackend.states.TourStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,12 +12,13 @@ import java.util.List;
 public class TourResponseDTO {
 
     private int id;
-    private String title;
+    private String name;
     private String description;
     private String location;
     private Double price;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String duration;
+
+    private int maxGuests;
     private List<Category> categories;
     private List<Language> languages;
     private TourStatus status;
@@ -29,6 +32,8 @@ public class TourResponseDTO {
     private List<String> importantInformation;
 
     private boolean isFavorited;
+
+    private byte[] tourPic;
     public List<TourItineraryDTO> getItineraries() {
         return itineraries;
     }
@@ -40,11 +45,42 @@ public class TourResponseDTO {
     private List<TourItineraryDTO> itineraries;
 
     // Getters and Setters
+
+
+    public byte[] getTourPic() {
+        return tourPic;
+    }
+
+    public void setTourPic(byte[] tourPic) {
+        this.tourPic = tourPic;
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public int getMaxGuests() {
+        return maxGuests;
+    }
+
+    public void setMaxGuests(int maxGuests) {
+        this.maxGuests = maxGuests;
+    }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -55,11 +91,7 @@ public class TourResponseDTO {
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price; }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
     public List<Category> getCategories() { return categories; }
     public void setCategories(List<Category> categories) { this.categories = categories; }

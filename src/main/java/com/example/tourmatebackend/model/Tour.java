@@ -17,7 +17,7 @@ public class Tour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String title;
+    private String name;
 
     @Column(length = 2000)
     private String description;
@@ -26,8 +26,12 @@ public class Tour {
 
     private double price;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String duration;
+
+    private int maxGuests;
+    @Lob
+    @Column(name = "tourPic", columnDefinition = "LONGBLOB")
+    private byte[] tourPic;
 
     @Enumerated(EnumType.STRING)
     private TourStatus status = TourStatus.DRAFTED; // DRAFTED, POSTED, CANCELLED, COMPLETED
@@ -94,6 +98,13 @@ public class Tour {
         this.languages = languages;
     }
 
+    public byte[] getTourPic() {
+        return tourPic;
+    }
+
+    public void setTourPic(byte[] tourPic) {
+        this.tourPic = tourPic;
+    }
 
     public int getId() {
         return id;
@@ -103,12 +114,12 @@ public class Tour {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -135,21 +146,7 @@ public class Tour {
         this.price = price;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
 
     public TourStatus getStatus() {
         return status;
@@ -167,14 +164,6 @@ public class Tour {
         this.guide = guide;
     }
 
-//    public User getTraveller() {
-//        return traveller;
-//    }
-//
-//    public void setTraveller(User traveller) {
-//        this.traveller = traveller;
-//    }
-
     public List<String> getIncluded() { return included; }
     public void setIncluded(List<String> included) { this.included = included; }
 
@@ -185,4 +174,22 @@ public class Tour {
     public void setImportantInformation(List<String> importantInformation) {
         this.importantInformation = importantInformation;
     }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public int getMaxGuests() {
+        return maxGuests;
+    }
+
+    public void setMaxGuests(int maxGuests) {
+        this.maxGuests = maxGuests;
+    }
+
+
 }

@@ -47,19 +47,20 @@ public class SearchToursController {
     private TourResponseDTO mapToDTO(Tour tour,String authHeader) {
         TourResponseDTO dto = new TourResponseDTO();
         dto.setId(tour.getId());
-        dto.setTitle(tour.getTitle());
         dto.setDescription(tour.getDescription());
         dto.setLocation(tour.getLocation());
         dto.setPrice(tour.getPrice());
-        dto.setStartDate(tour.getStartDate());
-        dto.setEndDate(tour.getEndDate());
+        dto.setDuration(tour.getDuration());
+        dto.setName(tour.getName());
+        dto.setMaxGuests(tour.getMaxGuests());
         dto.setCategories(tour.getCategories());
         dto.setLanguages(tour.getLanguages());
         dto.setIncluded(tour.getIncluded());
         dto.setNotIncluded(tour.getNotIncluded());
         dto.setImportantInformation(tour.getImportantInformation());
         dto.setGuideId(tour.getGuide().getId());
-        dto.setGuideName(tour.getGuide().getUser().getFirstName() + " " + tour.getGuide().getUser().getLastName());
+        dto.setGuideName(tour.getGuide().getFullName());
+        dto.setTourPic(tour.getTourPic());
         int currentUserId = extractUserId(authHeader);
 
         dto.setFavorited(
@@ -88,8 +89,6 @@ public class SearchToursController {
             @RequestParam(required = false, defaultValue = "") String location,
             @RequestParam(required = false, defaultValue = "0") Double minPrice,
             @RequestParam(required = false, defaultValue = "10000000000") Double maxPrice,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
             @RequestParam(required = false, defaultValue = "startDate") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortDir,
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -99,8 +98,7 @@ public class SearchToursController {
             @RequestHeader("Authorization") String authHeader
 
             ) {
-        LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.of(1900,1,1);
-        LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.of(3000,1,1);
+
 
         Sort sort = "desc".equalsIgnoreCase(sortDir) ?
                 Sort.by(sortBy).descending() :
@@ -109,13 +107,11 @@ public class SearchToursController {
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
         Page<Tour> tourPage = tourRepository
-                .findByStatusAndLocationContainingIgnoreCaseAndPriceBetweenAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+                .findByStatusAndLocationContainingIgnoreCaseAndPriceBetween(
                         TourStatus.POSTED,
                         location,
                         minPrice,
                         maxPrice,
-                        start,
-                        end,
                         pageable
                 );
 

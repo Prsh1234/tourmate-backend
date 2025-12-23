@@ -33,7 +33,7 @@ public class EarningsService {
 
     private TransactionDTO mapTourBooking(TourBooking b) {
         TransactionDTO dto = new TransactionDTO();
-        dto.setTourName(b.getTour().getTitle());
+        dto.setTourName(b.getTour().getName());
         dto.setDate(b.getBookingDate().toLocalDate());
         dto.setAmount(b.getTotalPrice());
         dto.setStatus(b.getStatus().name().toLowerCase());

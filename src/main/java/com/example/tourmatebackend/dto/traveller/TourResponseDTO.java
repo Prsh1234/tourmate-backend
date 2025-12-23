@@ -3,6 +3,8 @@ package com.example.tourmatebackend.dto.traveller;
 import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
 import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.Language;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,14 +13,17 @@ import java.util.List;
 public class TourResponseDTO {
 
     private int id;
-    private String title;
+    private String name;
     private String description;
     private String location;
     private Double price;
-    private LocalDate startDate;
-    private LocalDate endDate;
+
     private List<Category> categories;
     private List<Language> languages;
+
+    private String duration;
+
+    private int maxGuests;
 
     // Guide info
     private int guideId;
@@ -32,37 +37,47 @@ public class TourResponseDTO {
     private List<String> notIncluded;
     private List<String> importantInformation;
     private boolean isFavorited;
+
+    private byte[] tourPic;
     public TourResponseDTO(){
         // You can optionally initialize collections here to avoid NullPointerException
         this.categories = new ArrayList<>();
         this.languages = new ArrayList<>();
         this.itineraries = new ArrayList<>();
     }
-    public TourResponseDTO(int id, String title, String description, String location, Double price,
-                           LocalDate startDate, LocalDate endDate, List<Category> categories,
-                           List<Language> languages, int guideId, String guideName, String guideExpertise,
-                           List<TourItineraryDTO> itineraries, List<String> included, List<String> notIncluded,
-                           List<String> importantInformation, boolean isFavorited) {
+
+    public TourResponseDTO(int id, String name, String description, String location, Double price, List<Category> categories, List<Language> languages, String duration, int maxGuests, int guideId, String guideName, String guideExpertise, List<TourItineraryDTO> itineraries, List<String> included, List<String> notIncluded, List<String> importantInformation, boolean isFavorited, byte[] tourPic) {
         this.id = id;
-        this.title = title;
+        this.name = name;
         this.description = description;
         this.location = location;
         this.price = price;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.categories = categories;
         this.languages = languages;
+        this.duration = duration;
+        this.maxGuests = maxGuests;
         this.guideId = guideId;
         this.guideName = guideName;
         this.guideExpertise = guideExpertise;
         this.itineraries = itineraries;
-        this.importantInformation=importantInformation;
-        this.included=included;
-        this.notIncluded=notIncluded;
-        this.isFavorited=isFavorited;
+        this.included = included;
+        this.notIncluded = notIncluded;
+        this.importantInformation = importantInformation;
+        this.isFavorited = isFavorited;
+        this.tourPic = tourPic;
     }
 
     // Getters & Setters
+
+
+    public byte[] getTourPic() {
+        return tourPic;
+    }
+
+    public void setTourPic(byte[] tourPic) {
+        this.tourPic = tourPic;
+    }
+
     public void setItineraries(List<TourItineraryDTO> itineraries) {
         this.itineraries = itineraries;
     }
@@ -76,12 +91,7 @@ public class TourResponseDTO {
     public void setId(int id) {
         this.id = id;
     }
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
+
     public String getDescription() {
         return description;
     }
@@ -100,18 +110,31 @@ public class TourResponseDTO {
     public void setPrice(Double price) {
         this.price = price;
     }
-    public LocalDate getStartDate() {
-        return startDate;
+
+    public String getName() {
+        return name;
     }
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+
+    public void setName(String name) {
+        this.name = name;
     }
-    public LocalDate getEndDate() {
-        return endDate;
+
+    public String getDuration() {
+        return duration;
     }
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
+
+    public int getMaxGuests() {
+        return maxGuests;
+    }
+
+    public void setMaxGuests(int maxGuests) {
+        this.maxGuests = maxGuests;
+    }
+
     public List<Category> getCategories() {
         return categories;
     }

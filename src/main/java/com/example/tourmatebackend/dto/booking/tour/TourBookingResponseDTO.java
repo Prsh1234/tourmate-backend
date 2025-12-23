@@ -1,13 +1,16 @@
 package com.example.tourmatebackend.dto.booking.tour;
 
 import com.example.tourmatebackend.model.TourBooking;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+
 public class TourBookingResponseDTO {
 
     private int bookingId;
 
 
     private int tourId;
-    private String tourTitle;
+    private String tourName;
     private String guideName;
     private double totalPrice;
     private int travellers;
@@ -19,11 +22,12 @@ public class TourBookingResponseDTO {
 
     private String paymentTransactionId;
 
+    private byte[] tourPic;
 
     public TourBookingResponseDTO(TourBooking booking) {
         this.bookingId = booking.getId();
         this.tourId = booking.getTour().getId();
-        this.tourTitle = booking.getTour().getTitle();
+        this.tourName = booking.getTour().getName();
 
         this.guideName = booking.getGuide().getUser().getFirstName()
                 + " "
@@ -31,12 +35,23 @@ public class TourBookingResponseDTO {
 
         this.totalPrice = booking.getTotalPrice();
         this.travellers = booking.getTravellers();
+        this.tourPic = booking.getTour().getTourPic();
         this.status = booking.getStatus().name();
         this.paymentStatus = booking.getPaymentStatus().name();
         this.paymentTransactionId = booking.getPaymentTransactionId();
     }
 
     // getters...
+
+
+    public byte[] getTourPic() {
+        return tourPic;
+    }
+
+    public void setTourPic(byte[] tourPic) {
+        this.tourPic = tourPic;
+    }
+
     public String getPaymentStatus() {
         return paymentStatus;
     }
@@ -68,12 +83,12 @@ public class TourBookingResponseDTO {
         this.tourId = tourId;
     }
 
-    public String getTourTitle() {
-        return tourTitle;
+    public String getTourName() {
+        return tourName;
     }
 
-    public void setTourTitle(String tourTitle) {
-        this.tourTitle = tourTitle;
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
     }
 
     public String getGuideName() {
