@@ -1,7 +1,7 @@
 package com.example.tourmatebackend.controller.admin;
 
-import com.example.tourmatebackend.dto.admin.GuideDecisionResponseDTO;
-import com.example.tourmatebackend.dto.admin.GuideRequestDTO;
+import com.example.tourmatebackend.dto.admin.GuideRegistration.GuideDecisionResponseDTO;
+import com.example.tourmatebackend.dto.admin.GuideRegistration.GuideRequestDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.GuideStatus;

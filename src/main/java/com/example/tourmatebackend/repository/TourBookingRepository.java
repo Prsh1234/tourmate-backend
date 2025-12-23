@@ -70,4 +70,17 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Intege
     List<TourBooking> findTop10ByGuideIdAndStatusInOrderByBookingDateDesc(
             int guideId, List<BookingStatus> statuses
     );
+
+    @Query("""
+        SELECT COALESCE(SUM(t.totalPrice), 0)
+        FROM TourBooking t
+        WHERE t.user.id = :userId
+          AND t.status IN :statuses
+    """)
+    double getTotalSpentByUser(
+            @Param("userId") int userId,
+            @Param("statuses") List<BookingStatus> statuses
+    );
+
+    long countByUserIdAndStatusIn(int userId, List<BookingStatus> statuses);
 }

@@ -64,8 +64,7 @@ public class GuideService {
         // Travelers
         Integer travelersGuide = guideBookingRepository.getTotalTravelers(guideId);
         Integer travelersTour = tourBookingRepository.getTotalTravelers(guideId);
-        System.out.println(travelersGuide);
-        System.out.println(travelersTour);
+
 
         Integer travelers =
                 (travelersGuide == null ? 0 : travelersGuide) +

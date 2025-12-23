@@ -73,5 +73,18 @@ public interface GuideBookingRepository extends JpaRepository<GuideBooking, Inte
     List<GuideBooking> findTop10ByGuideIdAndStatusInOrderByBookingDateDesc(
             int guideId, List<BookingStatus> statuses
     );
+
+    @Query("""
+        SELECT COALESCE(SUM(g.totalPrice), 0)
+        FROM GuideBooking g
+        WHERE g.user.id = :userId
+          AND g.status IN :statuses
+    """)
+    double getTotalSpentByUser(
+            @Param("userId") int userId,
+            @Param("statuses") List<BookingStatus> statuses
+    );
+
+    long countByUserIdAndStatusIn(int userId, List<BookingStatus> statuses);
 }
 

@@ -1,4 +1,4 @@
-package com.example.tourmatebackend.dto.admin;
+package com.example.tourmatebackend.dto.admin.GuideRegistration;
 
 
 public class GuideDecisionResponseDTO {

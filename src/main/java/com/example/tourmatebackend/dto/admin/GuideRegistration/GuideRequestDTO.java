@@ -1,4 +1,4 @@
-package com.example.tourmatebackend.dto.admin;
+package com.example.tourmatebackend.dto.admin.GuideRegistration;
 
 import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.GuideExperience;

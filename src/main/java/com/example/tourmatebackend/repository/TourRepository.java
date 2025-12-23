@@ -2,6 +2,7 @@ package com.example.tourmatebackend.repository;
 
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.Tour;
+import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.GuideStatus;
 import com.example.tourmatebackend.states.TourStatus;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,6 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
             java.time.LocalDate endDate,
             Pageable pageable
     );
+    int countByGuideId(int guideId);
+
 }

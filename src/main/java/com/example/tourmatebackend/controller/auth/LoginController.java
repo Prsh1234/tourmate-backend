@@ -2,6 +2,7 @@ package com.example.tourmatebackend.controller.auth;
 
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.states.Role;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,10 @@ public class LoginController {
         if (!new BCryptPasswordEncoder().matches(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
+        }
+        if(user.getRole()== Role.SUSPENDED){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User is suspended"));
         }
         String token = jwtUtil.generateToken(user.getEmail());
         return ResponseEntity.ok(Map.of(
