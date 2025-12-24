@@ -229,10 +229,12 @@ public class TourController {
     // ==========================
     // 4. Edit drafted tour
     // ==========================
-    @PutMapping("/{tourId}/edit")
+    @PutMapping(value="/{tourId}/edit",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> editTour(@RequestHeader("Authorization") String authHeader,
                                       @PathVariable int tourId,
-                                      @RequestBody Tour updatedTour) {
+                                      @RequestPart(value="tour", required = false) String tourJson,
+                                      @RequestParam(value="tourPic", required = false) MultipartFile tourPic) throws IOException {
+        Tour updatedTour = objectMapper.readValue(tourJson, Tour.class);
         User user = getUserFromToken(authHeader);
         if (!isGuide(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -260,7 +262,14 @@ public class TourController {
         if(updatedTour.getIncluded() != null) tour.setIncluded(updatedTour.getIncluded());
         if(updatedTour.getNotIncluded() != null) tour.setNotIncluded(updatedTour.getNotIncluded());
         if(updatedTour.getImportantInformation() != null) tour.setImportantInformation(updatedTour.getImportantInformation());
-
+        if(tourPic!=null){
+            tour.setTourPic(tourPic.getBytes());
+        }
+        if (updatedTour.getStatus() == null || updatedTour.getStatus() == TourStatus.DRAFTED) {
+            tour.setStatus(TourStatus.DRAFTED);
+        } else if(updatedTour.getStatus() == TourStatus.POSTED){
+            tour.setStatus(TourStatus.POSTED); // Set the status if it's valid
+        }
 
 
         if (updatedTour.getItineraries() != null) {
