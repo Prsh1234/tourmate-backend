@@ -86,30 +86,29 @@ public class SearchToursController {
     // ============================
     @GetMapping("/tours")
     public ResponseEntity<?> getPostedTours(
-            @RequestParam(required = false, defaultValue = "") String location,
+            @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(required = false, defaultValue = "0") Double minPrice,
             @RequestParam(required = false, defaultValue = "10000000000") Double maxPrice,
-            @RequestParam(required = false, defaultValue = "startDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "price") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortDir,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
             @RequestParam(required = false) List<String> category,
             @RequestParam(required = false) List<String> language,
+            @RequestParam(defaultValue = "0") int rating,
             @RequestHeader("Authorization") String authHeader
 
             ) {
 
 
-        Sort sort = "desc".equalsIgnoreCase(sortDir) ?
-                Sort.by(sortBy).descending() :
-                Sort.by(sortBy).ascending();
+        Sort sort = Sort.by(sortBy.equalsIgnoreCase("price") ? "price" : "id"); // fallback to id if not price
+        sort = sortDir.equalsIgnoreCase("desc") ? sort.descending() : sort.ascending();
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
         Page<Tour> tourPage = tourRepository
-                .findByStatusAndLocationContainingIgnoreCaseAndPriceBetween(
+                .findByStatusAndPriceBetween(
                         TourStatus.POSTED,
-                        location,
                         minPrice,
                         maxPrice,
                         pageable
@@ -125,6 +124,8 @@ public class SearchToursController {
                         t.getLanguages().stream()
                                 .map(Enum::name)
                                 .anyMatch(language::contains))
+                .filter(dto -> search.isEmpty() ||
+                        dto.getLocation().toLowerCase().contains(search.toLowerCase()))
                 .map(t -> mapToDTO(t, authHeader))
                 .collect(Collectors.toList());
         Map<String, Object> response = new LinkedHashMap<>();

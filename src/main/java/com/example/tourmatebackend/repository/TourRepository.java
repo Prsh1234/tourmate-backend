@@ -17,9 +17,8 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
 
     List<Tour> findByStatus(TourStatus status);
     // Fetch POSTED tours with filters using Spring Data paging
-    Page<Tour> findByStatusAndLocationContainingIgnoreCaseAndPriceBetween(
+    Page<Tour> findByStatusAndPriceBetween(
             TourStatus status,
-            String location,
             Double minPrice,
             Double maxPrice,
             Pageable pageable
