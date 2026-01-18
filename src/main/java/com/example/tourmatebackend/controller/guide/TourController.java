@@ -160,6 +160,10 @@ public class TourController {
 
         tour.setItineraries(tourRequest.getItineraries());
 
+        tour.setImportantInformation(tourRequest.getImportantInformation());
+        tour.setIncluded(tourRequest.getIncluded());
+        tour.setNotIncluded(tourRequest.getNotIncluded());
+
         Tour savedTour = tourRepository.save(tour);
         return ResponseEntity.ok(Map.of(
                 "status", "success",
