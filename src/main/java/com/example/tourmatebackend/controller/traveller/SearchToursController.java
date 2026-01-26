@@ -116,6 +116,10 @@ public class SearchToursController {
 
         // Filter by category and language
         List<TourResponseDTO> filteredTours = tourPage.getContent().stream()
+                .filter(g -> category == null || category.isEmpty()
+                        || g.getCategories().stream().map(Enum::name).anyMatch(category::contains))
+                .filter(g -> language == null || language.isEmpty()
+                        || g.getLanguages().stream().map(Enum::name).anyMatch(language::contains))
                 .filter(t -> category == null || category.isEmpty() ||
                         t.getCategories().stream()
                                 .map(Enum::name)

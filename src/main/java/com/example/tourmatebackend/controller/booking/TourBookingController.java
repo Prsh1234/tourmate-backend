@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +48,13 @@ public class TourBookingController {
     // CREATE BOOKING
     // --------------------------------------
     @PostMapping("/book-request")
-    public ResponseEntity<?> createBooking(@RequestBody TourBookingRequestDTO req) {
+    public ResponseEntity<?> createBooking(@RequestHeader("Authorization") String authHeader,
+                                           @RequestBody TourBookingRequestDTO req) {
 
         Tour tour = tourRepository.findById(req.getTourId()).orElse(null);
-        User user = userRepository.findById(req.getUserId()).orElse(null);
+        User user = getUserFromToken(authHeader);
         Guide guide = guideRepository.findById(req.getGuideId()).orElse(null);
-
+        LocalDate now = LocalDate.now();
 
         if (tour == null || user == null || guide == null) {
             return ResponseEntity.badRequest().body("Invalid user, tour or guide ID");
@@ -61,7 +64,36 @@ public class TourBookingController {
         booking.setTour(tour);
         booking.setUser(user);
         booking.setGuide(guide);   // SAVE GUIDE
+        if (req.getTravellers() <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Traveller numbers not provided."));
+        }
+
+        if (req.getTravellers() > tour.getMaxGuests()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Traveller numbers exceed maximum allowed travellers."));
+        }
+
         booking.setTravellers(req.getTravellers());
+
+
+
+        if (req.getStartDate() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Start date not provided."));
+        }
+
+        if (req.getStartDate().isBefore(now)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Start date cannot be in the past."));
+        }
+
+        if (req.getStartDate().isEqual(now)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Start date cannot be today."));
+        }
+
+        booking.setStartDate(req.getStartDate());
 
         double price = tour.getPrice() * req.getTravellers();
         booking.setTotalPrice(price);

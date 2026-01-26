@@ -49,20 +49,20 @@ public class GuideReviewController {
     ) {
         User user = getUserFromToken(authHeader);
 
-        // check if user had a completed booking with this guide
-        boolean hasCompletedBooking = guideBookingRepository
-                .existsByUserIdAndGuideIdAndStatus(user.getId(), guideId, BookingStatus.COMPLETED);
-
-        if (!hasCompletedBooking) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "You can review only after completing a booking."));
-        }
-
-        // prevent duplicate review
-        if (guideReviewRepository.existsByUserIdAndGuideId(user.getId(), guideId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("status", "error", "message", "You have already reviewed this guide."));
-        }
+//        // check if user had a completed booking with this guide
+//        boolean hasCompletedBooking = guideBookingRepository
+//                .existsByUserIdAndGuideIdAndStatus(user.getId(), guideId, BookingStatus.COMPLETED);
+//
+//        if (!hasCompletedBooking) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body(Map.of("status", "error", "message", "You can review only after completing a booking."));
+//        }
+//
+//        // prevent duplicate review
+//        if (guideReviewRepository.existsByUserIdAndGuideId(user.getId(), guideId)) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(Map.of("status", "error", "message", "You have already reviewed this guide."));
+//        }
 
         Guide guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new RuntimeException("Guide not found"));

@@ -315,10 +315,10 @@ public class TourController {
             return ResponseEntity.badRequest()
                     .body(Map.of("status", "error", "message", "No file uploaded"));
         }
+
         tour.setTourPic(file.getBytes());
 
         Tour saved = tourRepository.save(tour);
-
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Tour image updated successfully."

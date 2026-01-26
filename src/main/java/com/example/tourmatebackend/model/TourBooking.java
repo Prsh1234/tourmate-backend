@@ -3,6 +3,8 @@ package com.example.tourmatebackend.model;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.PaymentStatus;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,6 +30,7 @@ public class TourBooking {
     private double totalPrice;
 
     private LocalDateTime bookingDate = LocalDateTime.now();
+    private LocalDate startDate;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.PENDING;
@@ -80,4 +83,12 @@ public class TourBooking {
 
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 }
