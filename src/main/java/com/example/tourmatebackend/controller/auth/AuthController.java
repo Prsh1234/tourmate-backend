@@ -7,10 +7,7 @@ import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -37,8 +34,17 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/validate-admin")
-    public ResponseEntity<?> validateAdmin(@RequestHeader("Authorization") String authHeader) {
+
+
+    @GetMapping("/validate-role/{role}")
+    public ResponseEntity<?> validateRole(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Role role
+    ) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+        }
+
         String token = authHeader.replace("Bearer ", "");
 
         if (!jwtUtil.validateToken(token)) {
@@ -47,12 +53,13 @@ public class AuthController {
 
         String email = jwtUtil.extractEmail(token);
         Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty() || userOpt.get().getRole() != Role.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not an admin");
+
+        if (userOpt.isEmpty() || userOpt.get().getRole() != role) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied: requires " + role);
         }
 
-        return ResponseEntity.ok().body("Admin validated");
+        return ResponseEntity.ok().body(role + " validated");
     }
-
 
 }

@@ -41,6 +41,10 @@ public class GuideRegisterController {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private boolean isValidPhone(String phone) {
+        return phone != null && phone.matches("^\\+?\\d{7,15}$");
+    }
+
     @PostMapping(
             value = "/register/{userId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -54,7 +58,12 @@ public class GuideRegisterController {
     ) {
         try {
             GuideRegisterRequestDTO guideRequest = objectMapper.readValue(guideJson, GuideRegisterRequestDTO.class);
-
+            if (!isValidPhone(guideRequest.getPhoneNumber())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Invalid Nepal phone number"
+                ));
+            }
             // Now proceed as before
             User tokenUser = userRepository.findByEmail(jwtUtil.extractEmail(authHeader.replace("Bearer ", ""))).orElseThrow();
             if (tokenUser.getId() != userId) {

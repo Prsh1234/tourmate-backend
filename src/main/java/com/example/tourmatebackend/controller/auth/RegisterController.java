@@ -21,10 +21,17 @@ public class RegisterController {
 
     @Autowired
     private JwtUtil jwtUtil;
-
+    private boolean isValidPhone(String phone) {
+        return phone != null && phone.matches("^\\+?\\d{7,15}$");
+    }
     @PostMapping("/register")
     public ResponseEntity<?> postSignup(@RequestBody User u) throws IOException {
-
+        if (!isValidPhone(u.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Invalid phone number"
+            ));
+        }
         Optional<User> existingUser = uRepo.findByEmail(u.getEmail());
         if (existingUser.isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already signed up"));
