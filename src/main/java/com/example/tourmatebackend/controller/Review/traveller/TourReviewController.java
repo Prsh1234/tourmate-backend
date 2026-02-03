@@ -47,10 +47,10 @@ public class TourReviewController {
         boolean hasCompletedBooking = tourBookingRepository
                 .existsByUserIdAndTourIdAndStatus(user.getId(), tourId, BookingStatus.COMPLETED);
 
-        if (!hasCompletedBooking) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "You can review only after completing this tour."));
-        }
+//        if (!hasCompletedBooking) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body(Map.of("status", "error", "message", "You can review only after completing this tour."));
+//        }
 
         if (tourReviewRepository.existsByUserIdAndTourId(user.getId(), tourId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -68,9 +68,23 @@ public class TourReviewController {
 
         tourReviewRepository.save(review);
 
+        ReviewResponseDTO responseDTO = new ReviewResponseDTO(
+                review.getId(),
+                review.getRating(),
+                review.getReview(),
+                user.getId(),
+                user.getFirstName() + " " + user.getLastName(),
+                user.getProfilePic(),
+                "TOUR",
+                tour.getId(),
+                review.getCreatedAt().toString(),
+                review.getGuideComment(),
+                review.getCommentAt() != null ? review.getCommentAt().toString() : null
+        );
+
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Review added successfully"
+                "review", responseDTO
         ));
     }
     @GetMapping("/{tourId}/reviews")
@@ -94,7 +108,7 @@ public class TourReviewController {
                 r.getRating(),
                 r.getReview(),
                 r.getUser().getId(),
-                r.getUser().getFirstName(),
+                r.getUser().getFirstName() + " "+ r.getUser().getLastName(),
                 r.getUser().getProfilePic(),
                 "TOUR",
                 r.getTour().getId(),

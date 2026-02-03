@@ -75,9 +75,23 @@ public class GuideReviewController {
 
         guideReviewRepository.save(review);
 
+        ReviewResponseDTO responseDTO = new ReviewResponseDTO(
+                review.getId(),
+                review.getRating(),
+                review.getReview(),
+                user.getId(),
+                user.getFirstName() + " " + user.getLastName(),
+                user.getProfilePic(),
+                "GUIDE",
+                review.getGuide().getId(),
+                review.getCreatedAt().toString(),
+                review.getGuideComment(),
+                review.getCommentAt() != null ? review.getCommentAt().toString() : null
+        );
+
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Review added successfully"
+                "review", responseDTO
         ));
     }
     @GetMapping("/{guideId}/reviews")
