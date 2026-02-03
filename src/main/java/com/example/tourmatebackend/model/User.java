@@ -33,6 +33,16 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference("user-guide")
     private Guide guide;
+    private boolean suspended=false;
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public void setSuspended(boolean suspended) {
+        this.suspended = suspended;
+    }
+
 //
 //    @OneToMany(mappedBy = "traveller", cascade = CascadeType.ALL)
 //    @JsonManagedReference("user-tour")

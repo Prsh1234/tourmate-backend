@@ -38,7 +38,7 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
         }
-        if(user.getRole()== Role.SUSPENDED){
+        if(user.isSuspended()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User is suspended"));
         }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class UserManagementController {
 
         List<User> userList = userRepository.findAll()
                 .stream()
-                .filter(u -> u.getRole() == Role.TRAVELLER || u.getRole() == Role.SUSPENDED)
+                .filter(u -> u.getRole() == Role.TRAVELLER)
                 .collect(Collectors.toList());
         List<BookingStatus> validStatuses =
                 List.of(BookingStatus.APPROVED, BookingStatus.COMPLETED);
@@ -94,7 +95,7 @@ public class UserManagementController {
             dto.setBookings((int) (guideBookings + tourBookings));
             dto.setUserId(user.getId());
             dto.setRole(user.getRole());
-
+            dto.setSuspended(user.isSuspended());
 
             return dto;
         }).collect(Collectors.toList());
@@ -109,37 +110,38 @@ public class UserManagementController {
     }
 
     @PutMapping("/travellers/suspend/{userId}")
-    public ResponseEntity<?> toggleUser(@RequestHeader("Authorization") String authHeader,
-                                         @PathVariable int userId) {
+    public ResponseEntity<?> toggleUser(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int userId
+    ) {
 
         User requester = extractUserFromToken(authHeader);
         if (!isAdmin(requester)) return unauthorized();
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
-        User user = optionalUser.get();
-        if (user.getRole()==Role.SUSPENDED){
-            if(user.getGuide()!=null){
-                user.setRole(Role.GUIDE);
 
-            }
-            else{
-                user.setRole(Role.TRAVELLER);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "User not found"
+                ));
 
-            }
+        // Prevent suspension if guide request is pending
+        if (user.getGuide() != null &&
+                user.getGuide().getStatus() == GuideStatus.PENDING) {
+            return ResponseEntity.badRequest().body("Guide Request Pending");
         }
-        else{
-            user.setRole(Role.SUSPENDED);
-        }
+
+        // ✅ Toggle suspension
+        user.setSuspended(!user.isSuspended());
+
         userRepository.save(user);
-        return ResponseEntity.ok(
-                Map.of(
-                        "status", "success",
-                        "newRole", user.getRole(),
-                        "message", "User status updated"
-                )
-        );
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "suspended", user.isSuspended(),
+                "role", user.getRole(),
+                "message", user.isSuspended()
+                        ? "User suspended successfully"
+                        : "User unsuspended successfully"
+        ));
     }
 
 
@@ -193,8 +195,7 @@ public class UserManagementController {
         }
         Guide guide = optionalGuide.get();
         if (guide.getStatus() == GuideStatus.PENDING){
-            return ResponseEntity.badRequest().body("Cannot suspend, Not a Guide");
-
+            return ResponseEntity.badRequest().body("Cannot suspend, Guide Request Pending");
         }
         else if(guide.getStatus() == GuideStatus.SUSPENDED) {
             guide.setStatus(GuideStatus.APPROVED);

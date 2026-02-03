@@ -14,6 +14,16 @@ public class UserManagementResponseDTO {
     private int bookings;
     private Role role;
 
+    private boolean suspended;
+
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public void setSuspended(boolean suspended) {
+        this.suspended = suspended;
+    }
 
     public Role getRole() {
         return role;
