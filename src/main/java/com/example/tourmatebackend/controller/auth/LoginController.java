@@ -26,25 +26,31 @@ public class LoginController {
     private JwtUtil jwtUtil;
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
+
         Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
 
-        if (optionalUser.isEmpty()) {
+        if (optionalUser.isEmpty() ||
+                !new BCryptPasswordEncoder().matches(
+                        loginRequest.getPassword(),
+                        optionalUser.get().getPassword())) {
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
         }
 
         User user = optionalUser.get();
-        if (!new BCryptPasswordEncoder().matches(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid email or password"));
-        }
-        if(user.isSuspended()){
+
+        if (user.isSuspended()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User is suspended"));
         }
-        String token = jwtUtil.generateToken(user.getEmail());
+
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
         return ResponseEntity.ok(Map.of(
-                "token", token,
+                "token", accessToken,
+                "refreshToken", refreshToken,
                 "userId", user.getId(),
                 "role", user.getRole().name()
         ));

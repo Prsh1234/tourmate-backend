@@ -42,10 +42,13 @@ public class RegisterController {
         User savedUser = uRepo.save(u);
 
         if (savedUser != null) {
-            String token = jwtUtil.generateToken(savedUser.getEmail());
+            String token = jwtUtil.generateAccessToken(savedUser.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(savedUser.getEmail());
+
 
             return ResponseEntity.ok(Map.of(
                     "token", token,
+                    "refreshToken",refreshToken,
                     "email", savedUser.getEmail(),
                     "firstName", savedUser.getFirstName(),
                     "lastName", savedUser.getLastName()

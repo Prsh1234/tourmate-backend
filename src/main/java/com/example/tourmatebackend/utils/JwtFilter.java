@@ -43,11 +43,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            if (jwtUtil.validateToken(token)) {
+            if (jwtUtil.validateToken(token)
+                    && "access".equals(jwtUtil.extractType(token))) {
+
                 String email = jwtUtil.extractEmail(token);
                 User user = userRepository.findByEmail(email).orElse(null);
+
                 if (user != null) {
-                    // Set Spring Security Authentication with ROLE
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     user,

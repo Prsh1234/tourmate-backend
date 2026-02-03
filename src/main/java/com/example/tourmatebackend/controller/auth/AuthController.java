@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -62,4 +63,29 @@ public class AuthController {
         return ResponseEntity.ok().body(role + " validated");
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> body) {
+
+        String refreshToken = body.get("refreshToken");
+
+        if (!jwtUtil.validateToken(refreshToken) ||
+                !"refresh".equals(jwtUtil.extractType(refreshToken))) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid refresh token"));
+        }
+
+        String email = jwtUtil.extractEmail(refreshToken);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null || user.isSuspended()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String newAccessToken = jwtUtil.generateAccessToken(email);
+
+        return ResponseEntity.ok(Map.of(
+                "token", newAccessToken
+        ));
+    }
 }
