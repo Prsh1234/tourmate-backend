@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface GuideReviewRepository extends JpaRepository<GuideReview, Integer> {
     List<GuideReview> findByGuideId(int guideId);
+
     boolean existsByUserIdAndGuideId(int userId, int guideId);
 
     @Query("""

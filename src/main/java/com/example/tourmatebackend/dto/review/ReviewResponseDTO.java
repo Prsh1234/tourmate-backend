@@ -1,6 +1,8 @@
 package com.example.tourmatebackend.dto.review;
 
 
+import com.example.tourmatebackend.model.Tour;
+
 public class ReviewResponseDTO {
 
     private int id;
@@ -18,6 +20,7 @@ public class ReviewResponseDTO {
 
     private String guideComment;
     private String commentAt;
+    private Tour tour;
 
     // -------- Constructor --------
     public ReviewResponseDTO(int id, int rating, String reviewText,
@@ -39,6 +42,13 @@ public class ReviewResponseDTO {
     }
 
     // -------- GETTERS ----------
+
+    public Tour getTour() {
+        return tour;
+    }
+    public void setTour(Tour tour) {
+        this.tour = tour;
+    }
     public int getId() { return id; }
     public int getRating() { return rating; }
     public String getReviewText() { return reviewText; }

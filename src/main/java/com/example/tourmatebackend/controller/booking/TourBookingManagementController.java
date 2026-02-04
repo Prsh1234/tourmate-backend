@@ -138,7 +138,42 @@ public class TourBookingManagementController {
                 "data", new TourBookingResponseDTO(booking)
         ));
     }
+    // ----------------------------
+    // Cancel a tour booking
+    // ----------------------------
+    @PutMapping("/{bookingId}/cancel")
+    public ResponseEntity<?> cancelTourBooking(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int bookingId
+    ) {
+        User user = getUserFromToken(authHeader);
 
+        if (!isGuide(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "Only guides can manage tour bookings."));
+        }
+
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
+
+        if (booking.getGuide() == null || booking.getGuide().getId() != user.getGuide().getId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "You can only manage your own tour bookings."));
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+        notificationService.createNotification(
+                booking.getUser().getId(),
+                "Booking Cancelled",
+                booking.getGuide().getUser().getFirstName() + " has camcelled the booking."
+        );
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Tour booking cancelled successfully",
+                "data", new TourBookingResponseDTO(booking)
+        ));
+    }
     // ----------------------------
     // View tour booking requests
     // ----------------------------
@@ -192,7 +227,44 @@ public class TourBookingManagementController {
         ));
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> getBookingCounts(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        User user = getUserFromToken(authHeader);
 
+        if (!isGuide(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", "error", "message", "Only guides allowed"));
+        }
+
+        List<Object[]> results =
+                bookingRepository.countBookingsByStatus(user.getGuide().getId());
+
+        int upcoming = 0, requested = 0, past = 0, cancelled = 0;
+
+        for (Object[] row : results) {
+            BookingStatus status = (BookingStatus) row[0];
+            long count = (long) row[1];
+
+            switch (status) {
+                case APPROVED -> upcoming += count;
+                case PENDING -> requested += count;
+                case COMPLETED -> past += count;
+                case CANCELLED, DENIED -> cancelled += count;
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", Map.of(
+                        "upcoming", upcoming,
+                        "requested", requested,
+                        "past", past,
+                        "cancelled", cancelled
+                )
+        ));
+    }
     // ----------------------------
     // Helper Methods
     // ----------------------------

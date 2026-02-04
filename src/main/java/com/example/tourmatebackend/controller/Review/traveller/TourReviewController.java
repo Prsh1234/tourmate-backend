@@ -52,10 +52,10 @@ public class TourReviewController {
 //                    .body(Map.of("status", "error", "message", "You can review only after completing this tour."));
 //        }
 
-        if (tourReviewRepository.existsByUserIdAndTourId(user.getId(), tourId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("status", "error", "message", "You already reviewed this tour."));
-        }
+//        if (tourReviewRepository.existsByUserIdAndTourId(user.getId(), tourId)) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(Map.of("status", "error", "message", "You already reviewed this tour."));
+//        }
 
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tour not found"));

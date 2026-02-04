@@ -17,16 +17,21 @@ public class ReviewService {
     @Autowired
     private TourReviewRepository tourReviewRepository;
     public double calculateGuideAverageRating(List<GuideReview> reviews) {
-        return reviews.stream()
+        double avg = reviews.stream()
                 .mapToInt(GuideReview::getRating)
                 .average()
                 .orElse(0);
+
+        return Math.round(avg * 100.0) / 100.0;
     }
+
     public double calculateTourAverageRating(List<TourReview> reviews) {
-        return reviews.stream()
+        double avg = reviews.stream()
                 .mapToInt(TourReview::getRating)
                 .average()
                 .orElse(0);
+
+        return Math.round(avg * 100.0) / 100.0;
     }
     public GuideReview addGuideComment(int guideId, int reviewId, String comment) {
 

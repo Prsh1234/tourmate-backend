@@ -83,4 +83,12 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Intege
     );
 
     long countByUserIdAndStatusIn(int userId, List<BookingStatus> statuses);
+
+    @Query("""
+SELECT b.status, COUNT(b)
+FROM TourBooking b
+WHERE b.guide.id = :guideId
+GROUP BY b.status
+""")
+    List<Object[]> countBookingsByStatus(@Param("guideId") int guideId);
 }

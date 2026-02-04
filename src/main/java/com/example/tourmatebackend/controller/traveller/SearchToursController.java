@@ -2,10 +2,13 @@ package com.example.tourmatebackend.controller.traveller;
 
 import com.example.tourmatebackend.dto.guide.TourItineraryDTO;
 import com.example.tourmatebackend.dto.traveller.TourResponseDTO;
+import com.example.tourmatebackend.model.GuideReview;
 import com.example.tourmatebackend.model.Tour;
+import com.example.tourmatebackend.model.TourReview;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.FavouriteRepository;
 import com.example.tourmatebackend.repository.TourRepository;
+import com.example.tourmatebackend.repository.TourReviewRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.states.TourStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -32,6 +35,8 @@ public class SearchToursController {
     private FavouriteRepository favouriteRepository;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private TourReviewRepository tourReviewRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -61,6 +66,12 @@ public class SearchToursController {
         dto.setGuideId(tour.getGuide().getId());
         dto.setGuideName(tour.getGuide().getFullName());
         dto.setTourPic(tour.getTourPic());
+        List<TourReview> reviews = tourReviewRepository.findByTourId(tour.getId());
+
+        double avgRating = reviews.stream().mapToInt(TourReview::getRating).average().orElse(0.0);
+
+        dto.setAverageRating(avgRating);
+        dto.setTotalReviews(reviews.size());
         int currentUserId = extractUserId(authHeader);
 
         dto.setFavorited(
@@ -115,23 +126,40 @@ public class SearchToursController {
                 );
 
         // Filter by category and language
-        List<TourResponseDTO> filteredTours = tourPage.getContent().stream()
-                .filter(g -> category == null || category.isEmpty()
-                        || g.getCategories().stream().map(Enum::name).anyMatch(category::contains))
-                .filter(g -> language == null || language.isEmpty()
-                        || g.getLanguages().stream().map(Enum::name).anyMatch(language::contains))
-                .filter(t -> category == null || category.isEmpty() ||
-                        t.getCategories().stream()
-                                .map(Enum::name)
-                                .anyMatch(category::contains))
-                .filter(t -> language == null || language.isEmpty() ||
-                        t.getLanguages().stream()
-                                .map(Enum::name)
-                                .anyMatch(language::contains))
-                .filter(dto -> search.isEmpty() ||
-                        dto.getLocation().toLowerCase().contains(search.toLowerCase()))
-                .map(t -> mapToDTO(t, authHeader))
-                .collect(Collectors.toList());
+        List<TourResponseDTO> filteredTours =
+                tourPage.getContent().stream()
+                        // CATEGORY FILTER
+                        .filter(t -> category == null || category.isEmpty() ||
+                                t.getCategories().stream()
+                                        .map(Enum::name)
+                                        .anyMatch(category::contains))
+
+                        // LANGUAGE FILTER
+                        .filter(t -> language == null || language.isEmpty() ||
+                                t.getLanguages().stream()
+                                        .map(Enum::name)
+                                        .anyMatch(language::contains))
+
+                        // SEARCH FILTER
+                        .filter(t -> search.isEmpty() ||
+                                t.getLocation().toLowerCase().contains(search.toLowerCase()) ||
+                                t.getName().toLowerCase().contains(search.toLowerCase()))
+
+                        // MAP TO DTO
+                        .map(t -> mapToDTO(t, authHeader))
+                        .filter(dto -> dto.getAverageRating() >= rating) // in-memory rating filter
+
+                        // SORT BY RATING (if requested)
+                        .sorted((a, b) -> {
+                            if ("rating".equalsIgnoreCase(sortBy)) {
+                                return "desc".equalsIgnoreCase(sortDir)
+                                        ? Double.compare(b.getAverageRating(), a.getAverageRating())
+                                        : Double.compare(a.getAverageRating(), b.getAverageRating());
+                            }
+                            return 0; // price already handled by DB
+                        })
+
+                        .collect(Collectors.toList());
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("status", "success");
         response.put("message", "Tours fetched successfully.");

@@ -39,6 +39,26 @@ public class TourResponseDTO {
     private boolean isFavorited;
 
     private byte[] tourPic;
+    private Double averageRating;
+    private int totalReviews;
+
+    // Getters & Setters
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getTotalReviews() {
+        return totalReviews;
+    }
+
+    public void setTotalReviews(int totalReviews) {
+        this.totalReviews = totalReviews;
+    }
     public TourResponseDTO(){
         // You can optionally initialize collections here to avoid NullPointerException
         this.categories = new ArrayList<>();
@@ -46,26 +66,6 @@ public class TourResponseDTO {
         this.itineraries = new ArrayList<>();
     }
 
-    public TourResponseDTO(int id, String name, String description, String location, Double price, List<Category> categories, List<Language> languages, String duration, int maxGuests, int guideId, String guideName, String guideExpertise, List<TourItineraryDTO> itineraries, List<String> included, List<String> notIncluded, List<String> importantInformation, boolean isFavorited, byte[] tourPic) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.location = location;
-        this.price = price;
-        this.categories = categories;
-        this.languages = languages;
-        this.duration = duration;
-        this.maxGuests = maxGuests;
-        this.guideId = guideId;
-        this.guideName = guideName;
-        this.guideExpertise = guideExpertise;
-        this.itineraries = itineraries;
-        this.included = included;
-        this.notIncluded = notIncluded;
-        this.importantInformation = importantInformation;
-        this.isFavorited = isFavorited;
-        this.tourPic = tourPic;
-    }
 
     // Getters & Setters
 

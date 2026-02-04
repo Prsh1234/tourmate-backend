@@ -1,8 +1,12 @@
 package com.example.tourmatebackend.dto.booking.tour;
 
+import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.model.TourBooking;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TourBookingResponseDTO {
 
@@ -21,8 +25,9 @@ public class TourBookingResponseDTO {
 
 
     private String paymentTransactionId;
-
-    private byte[] tourPic;
+    private Tour tour;
+    private LocalDateTime bookingDate = LocalDateTime.now();
+    private LocalDate startDate;
 
     public TourBookingResponseDTO(TourBooking booking) {
         this.bookingId = booking.getId();
@@ -35,22 +40,42 @@ public class TourBookingResponseDTO {
 
         this.totalPrice = booking.getTotalPrice();
         this.travellers = booking.getTravellers();
-        this.tourPic = booking.getTour().getTourPic();
         this.status = booking.getStatus().name();
         this.paymentStatus = booking.getPaymentStatus().name();
         this.paymentTransactionId = booking.getPaymentTransactionId();
+        this.tour = booking.getTour();
+        this.bookingDate = booking.getBookingDate();
+        this.startDate = booking.getStartDate();
     }
 
     // getters...
 
 
-    public byte[] getTourPic() {
-        return tourPic;
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
     }
 
-    public void setTourPic(byte[] tourPic) {
-        this.tourPic = tourPic;
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
     }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public Tour getTour() {
+        return tour;
+    }
+
+    public void setTour(Tour tour) {
+        this.tour = tour;
+    }
+
+
 
     public String getPaymentStatus() {
         return paymentStatus;
