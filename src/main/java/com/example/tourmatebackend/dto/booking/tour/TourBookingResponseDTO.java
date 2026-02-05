@@ -1,5 +1,6 @@
 package com.example.tourmatebackend.dto.booking.tour;
 
+import com.example.tourmatebackend.dto.user.UserDTO;
 import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.model.TourBooking;
 import jakarta.persistence.Column;
@@ -11,8 +12,7 @@ import java.time.LocalDateTime;
 public class TourBookingResponseDTO {
 
     private int bookingId;
-
-
+    private UserDTO user;
     private int tourId;
     private String tourName;
     private String guideName;
@@ -46,10 +46,19 @@ public class TourBookingResponseDTO {
         this.tour = booking.getTour();
         this.bookingDate = booking.getBookingDate();
         this.startDate = booking.getStartDate();
+        this.user = new UserDTO(booking.getUser());
     }
 
     // getters...
 
+
+    public UserDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserDTO userDTO) {
+        this.user = userDTO;
+    }
 
     public LocalDateTime getBookingDate() {
         return bookingDate;

@@ -14,18 +14,7 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    private UserDTO mapToDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setRole(user.getRole());
-        dto.setPhoneNumber(user.getPhoneNumber());
-        dto.setProfilePic(user.getProfilePic());
-        dto.setBio(user.getBio());
-        return dto;
-    }
+
     public UserDTO getLoggedInUser(String token) {
         String email = jwtUtil.extractEmail(token);
         User user = userRepository.findByEmail(email).orElseThrow();
@@ -33,11 +22,11 @@ public class UserService {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-        return mapToDTO(user);
+        return new UserDTO(user);
     }
     public UserDTO getUserById(int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return mapToDTO(user);
+        return new UserDTO(user);
     }
 }

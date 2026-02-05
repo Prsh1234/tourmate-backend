@@ -4,11 +4,9 @@ import com.example.tourmatebackend.dto.guide.GuideDashboardDTO;
 import com.example.tourmatebackend.dto.guideRegistration.GuideRegisterRequestDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.repository.GuideBookingRepository;
-import com.example.tourmatebackend.repository.GuideRepository;
-import com.example.tourmatebackend.repository.GuideReviewRepository;
-import com.example.tourmatebackend.repository.TourBookingRepository;
+import com.example.tourmatebackend.repository.*;
 import com.example.tourmatebackend.states.GuideStatus;
+import com.example.tourmatebackend.states.TourStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +20,7 @@ public class GuideService {
     private GuideRepository guideRepository;
 
     @Autowired
-    private GuideBookingRepository guideBookingRepository;
+    private TourRepository tourRepository;
 
     @Autowired
     private TourBookingRepository tourBookingRepository;
@@ -34,41 +32,39 @@ public class GuideService {
 
         GuideDashboardDTO dto = new GuideDashboardDTO();
 
-        // Earnings from guide bookings
-        Double guideCurrent = guideBookingRepository.getGuideEarningsThisMonth(guideId);
-        Double guideLast = guideBookingRepository.getGuideEarningsLastMonth(guideId);
 
         // Earnings from tours created by the guide
         Double tourCurrent = tourBookingRepository.getTourEarningsThisMonth(guideId);
         Double tourLast = tourBookingRepository.getTourEarningsLastMonth(guideId);
 
-        double totalCurrent =
-                (guideCurrent != null ? guideCurrent : 0) +
-                        (tourCurrent != null ? tourCurrent : 0);
+        double totalCurrent =(tourCurrent != null ? tourCurrent : 0);
 
-        double totalLast =
-                (guideLast != null ? guideLast : 0) +
-                        (tourLast != null ? tourLast : 0);
+        double totalLast =(tourLast != null ? tourLast : 0);
 
         // Set earnings
         dto.setMonthlyEarnings(totalCurrent);
         dto.setTotalLast(totalLast);
 
         // Calculate % change
-        if (totalLast > 0) {
-            dto.setEarningsChangePercent(((totalCurrent - totalLast) / totalLast) * 100);
+        double changePercent;
+
+        if (totalLast == 0 && totalCurrent > 0) {
+            // From 0 to something → full growth
+            changePercent = 100;
+        } else if (totalLast == 0 && totalCurrent == 0) {
+            // No earnings both months
+            changePercent = 0;
         } else {
-            dto.setEarningsChangePercent(0);
+            changePercent = ((totalCurrent - totalLast) / totalLast) * 100;
         }
 
+        dto.setEarningsChangePercent(changePercent);
+
         // Travelers
-        Integer travelersGuide = guideBookingRepository.getTotalTravelers(guideId);
         Integer travelersTour = tourBookingRepository.getTotalTravelers(guideId);
 
 
-        Integer travelers =
-                (travelersGuide == null ? 0 : travelersGuide) +
-                        (travelersTour == null ? 0 : travelersTour);
+        Integer travelers =(travelersTour == null ? 0 : travelersTour);
         dto.setTotalTravelers(travelers != null ? travelers : 0);
 
 
@@ -80,13 +76,14 @@ public class GuideService {
         dto.setRating(rating != null ? rating : 0.0);
         dto.setTotalReviews(reviews != null ? reviews : 0);
 
-        Double totalGuide = guideBookingRepository.getGuideTotalEarnings(guideId);
         Double totalTour = tourBookingRepository.getTourTotalEarnings(guideId);
 
-        double totalEarnings =
-                (totalGuide == null ? 0 : totalGuide) +
-                        (totalTour == null ? 0 : totalTour);
-
+        double totalEarnings =(totalTour == null ? 0 : totalTour);
+        int activeTours = tourRepository.countByGuide_IdAndStatus(
+                guideId,
+                TourStatus.POSTED
+        );
+        dto.setActiveTours(activeTours);
         dto.setTotalEarnings(totalEarnings);
         return dto;
 

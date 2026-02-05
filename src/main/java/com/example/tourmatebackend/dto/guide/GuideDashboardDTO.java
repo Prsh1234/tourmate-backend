@@ -12,8 +12,18 @@ public class GuideDashboardDTO {
     private double rating;
     private int totalReviews;
 
+    private int activeTours;
+
     // Getters and Setters
 
+
+    public int getActiveTours() {
+        return activeTours;
+    }
+
+    public void setActiveTours(int activeTours) {
+        this.activeTours = activeTours;
+    }
 
     public double getTotalLast() {
         return totalLast;

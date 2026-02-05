@@ -14,7 +14,7 @@ import java.util.List;
 public interface TourRepository extends JpaRepository<Tour, Integer> {
     List<Tour> findByGuideId(int guideId);
     List<Tour> findByGuideIdAndStatus(int guideId, TourStatus status);
-
+    int countByGuide_IdAndStatus(int guideId, TourStatus status);
     List<Tour> findByStatus(TourStatus status);
     // Fetch POSTED tours with filters using Spring Data paging
     Page<Tour> findByStatusAndPriceBetween(

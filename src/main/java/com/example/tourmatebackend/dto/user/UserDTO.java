@@ -1,4 +1,5 @@
 package com.example.tourmatebackend.dto.user;
+import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.states.Role;
 
 public class UserDTO {
@@ -14,7 +15,19 @@ public class UserDTO {
 
     private byte[] profilePic;
 
-    // Getters & Setters
+    public UserDTO(User user) {
+        this.id = user.getId();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.bio = user.getBio();
+        this.role = user.getRole();
+        this.phoneNumber = user.getPhoneNumber();
+        this.profilePic = user.getProfilePic();
+    }
+
+
+// Getters & Setters
 
 
     public String getBio() {
