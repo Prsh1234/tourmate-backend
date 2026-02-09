@@ -8,13 +8,19 @@ import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.PaymentStatus;
+import com.example.tourmatebackend.utils.HmacHelper;
 import com.example.tourmatebackend.utils.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Map;
 
 @RestController
@@ -79,9 +85,74 @@ public class TourPaymentController {
         ));
     }
 
+
+    @GetMapping("/esewa/success")
+    public ResponseEntity<?> esewaSuccess(
+            @RequestParam String data,
+            @RequestParam int bookingId // use this directly
+    ) {
+        try {
+            // Decode Base64
+            String decoded = new String(Base64.getDecoder().decode(data));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> payload = mapper.readValue(decoded, Map.class);
+
+            // signature verification ...
+            // update booking using bookingId directly
+            if ("COMPLETE".equals(payload.get("status"))) {
+                TourBooking booking = bookingRepository.findById(bookingId)
+                        .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+                booking.setPaymentStatus(PaymentStatus.PAID);
+                booking.setPaymentTransactionId((String) payload.get("transaction_uuid"));
+                booking.setPaymentDate(LocalDateTime.now());
+                bookingRepository.save(booking);
+
+                notificationService.createNotification(
+                        booking.getGuide().getUser().getId(),
+                        "Payment Received",
+                        booking.getUser().getFirstName() + " has completed the payment of amount " + booking.getTotalPrice()
+                );
+            }
+
+            return ResponseEntity.ok("Payment successful");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid data");
+        }
+    }
+
+
+
+
+    @GetMapping("/esewa/failure")
+    public ResponseEntity<?> esewaFailure() {
+        return ResponseEntity.ok("Payment failed or cancelled");
+    }
+
+
+
     // -----------------------------
     // Helper: extract user from token
     // -----------------------------
+    private boolean verifyEsewaRC(String transactionUuid, double amount) {
+        String url = String.format(
+                "https://rc.esewa.com.np/api/epay/transaction/status/?product_code=EPAYTEST&total_amount=%s&transaction_uuid=%s",
+                amount, transactionUuid
+        );
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            // RC API returns JSON, usually {"status":"SUCCESS"} for successful payments
+            return response != null && "SUCCESS".equals(response.get("status"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     private User getUserFromToken(String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = jwtUtil.extractEmail(token);

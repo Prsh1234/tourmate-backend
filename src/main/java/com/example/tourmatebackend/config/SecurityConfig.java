@@ -26,6 +26,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Open endpoints
+                        .requestMatchers("/api/traveller/tour/payments/esewa/success").permitAll()
+                        .requestMatchers("/api/traveller/tour/payments/esewa/failure").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
