@@ -25,5 +25,6 @@ public interface GuideReviewRepository extends JpaRepository<GuideReview, Intege
            WHERE r.guide.id = :guideId
            """)
     Integer getTotalReviews(@Param("guideId") int guideId);
+
 }
 

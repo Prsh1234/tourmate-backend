@@ -3,6 +3,8 @@ package com.example.tourmatebackend.model;
 import com.example.tourmatebackend.states.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -34,6 +36,15 @@ public class User {
     @JsonManagedReference("user-guide")
     private Guide guide;
     private boolean suspended=false;
+    private LocalDate joined = LocalDate.now();
+
+    public LocalDate getJoined() {
+        return joined;
+    }
+
+    public void setJoined(LocalDate joined) {
+        this.joined = joined;
+    }
 
     public boolean isSuspended() {
         return suspended;

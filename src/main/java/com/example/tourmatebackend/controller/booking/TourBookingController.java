@@ -198,6 +198,38 @@ public class TourBookingController {
                 "data", new TourBookingResponseDTO(booking)
         ));
     }
+    @GetMapping("/upcoming-trips")
+    public ResponseEntity<?> getUpcomingTrips(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        User user = getUserFromToken(authHeader);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Upcoming = APPROVED bookings starting today or later
+        Page<TourBooking> bookingPage =
+                bookingRepository.findByUserIdAndStatusAndStartDateAfter(
+                        user.getId(),
+                        BookingStatus.APPROVED,
+                        LocalDate.now(),
+                        pageable
+                );
+
+        List<TourBookingResponseDTO> bookings = bookingPage.getContent().stream()
+                .map(TourBookingResponseDTO::new)
+                .toList();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", bookings,
+                "currentPage", bookingPage.getNumber(),
+                "pageSize", bookingPage.getSize(),
+                "totalBookings", bookingPage.getTotalElements(),
+                "totalPages", bookingPage.getTotalPages()
+        ));
+    }
 
     // Helper method to extract User from JWT
     private User getUserFromToken(String authHeader) {

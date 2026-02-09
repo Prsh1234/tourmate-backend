@@ -82,8 +82,18 @@ public class Guide {
     private String accountHolderName;
     private String accountNumber;
 
+    private LocalDate joined = LocalDate.now();
+
 
     // Getters & Setters
+    public LocalDate getJoined() {
+        return joined;
+    }
+
+    public void setJoined(LocalDate joined) {
+        this.joined = joined;
+    }
+
 
 
     public String getBankName() {

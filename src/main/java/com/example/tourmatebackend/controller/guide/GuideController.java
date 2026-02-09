@@ -41,8 +41,7 @@ public class GuideController {
     private GuideService guideService;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private ObjectMapper objectMapper;
+
     @Autowired
     private EarningsService earningsService;
 

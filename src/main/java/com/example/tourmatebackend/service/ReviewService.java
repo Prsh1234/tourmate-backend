@@ -62,18 +62,7 @@ public class ReviewService {
 
         // Ensure the guide owns this review
         if (review.getTour().getGuide().getId() != guideId) {
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(guideId);
-            System.out.println(review.getTour().getGuide().getId());
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
-            System.out.println(" ");
+
             throw new RuntimeException("You are not authorized to comment on this review.");
         }
 

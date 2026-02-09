@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TourBookingRepository extends JpaRepository<TourBooking, Integer> {
@@ -19,6 +21,8 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Intege
     Page<TourBooking> findByGuideIdAndStatusIn(int guideId, List<BookingStatus> statuses, Pageable pageable);
     Page<TourBooking> findByUserIdAndStatusIn(int userId, List<BookingStatus> statuses, Pageable pageable);
     boolean existsByUserIdAndTourIdAndStatus(int userId, int tourId, BookingStatus status);
+    Page<TourBooking> findByUserIdAndStatusAndStartDateAfter(int userId, BookingStatus status, LocalDate startDate, Pageable pageable);
+
     @Query("""
            SELECT SUM(b.totalPrice)
            FROM TourBooking b
@@ -91,4 +95,62 @@ WHERE b.guide.id = :guideId
 GROUP BY b.status
 """)
     List<Object[]> countBookingsByStatus(@Param("guideId") int guideId);
+
+
+
+
+
+    int countByUser_Id(int userId);
+
+    int countByUser_IdAndStartDateAfterAndStatus(
+            int userId,
+            LocalDate date,
+            BookingStatus status
+    );
+    @Query("""
+        SELECT MIN(tb.startDate)
+        FROM TourBooking tb
+        WHERE tb.user.id = :userId
+          AND tb.startDate > CURRENT_DATE
+          AND tb.status = com.example.tourmatebackend.states.BookingStatus.APPROVED
+    """)
+    LocalDate findNextUpcomingTripDate(@Param("userId") int userId);
+
+//admin
+    long count();
+    long countByBookingDateAfter(LocalDateTime date);
+
+    @Query("""
+            SELECT SUM(tb.totalPrice) FROM TourBooking tb 
+            WHERE tb.bookingDate >= :date 
+            AND tb.status IN (com.example.tourmatebackend.states.BookingStatus.COMPLETED, com.example.tourmatebackend.states.BookingStatus.APPROVED)
+
+            """)
+    Double sumRevenueSince(@Param("date") LocalDateTime date);
+
+    @Query("""
+    SELECT b
+    FROM TourBooking b
+    ORDER BY b.bookingDate DESC
+""")
+    List<TourBooking> findRecentBookings(Pageable pageable);
+
+    @Query("""
+SELECT 
+    g.id,
+    g.fullName,
+    g.location,
+    COALESCE(SUM(b.totalPrice), 0),
+    COALESCE(AVG(gr.rating), 0),
+    COUNT(gr.id)
+FROM TourBooking b
+JOIN b.guide g
+LEFT JOIN GuideReview gr ON gr.guide.id = g.id
+WHERE b.paymentStatus = com.example.tourmatebackend.states.PaymentStatus.PAID
+  AND MONTH(b.bookingDate) = MONTH(CURRENT_DATE)
+  AND YEAR(b.bookingDate) = YEAR(CURRENT_DATE)
+GROUP BY g.id, g.fullName, g.location
+ORDER BY SUM(b.totalPrice) DESC
+""")
+    List<Object[]> findTopGuidesThisMonth(Pageable pageable);
 }
