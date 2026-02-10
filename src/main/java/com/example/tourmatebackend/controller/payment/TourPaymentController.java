@@ -91,7 +91,6 @@ public class TourPaymentController {
     @GetMapping("/esewa/success")
     public ResponseEntity<?> esewaSuccess(
             @RequestParam String meta,
-            @RequestParam int bookingId,
             @RequestParam String returnUrl
     ) {
         try {
@@ -109,6 +108,7 @@ public class TourPaymentController {
 
             String transactionUuid = (String) payload.get("transaction_uuid");
             double totalAmount = Double.parseDouble(payload.get("total_amount").toString());
+            int bookingId = (int) payload.get("bookingId");
 
             // 3️⃣ Verify with eSewa RC API
             boolean verified = true; // skip RC check
