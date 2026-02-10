@@ -2,6 +2,7 @@ package com.example.tourmatebackend.controller.admin;
 
 
 import com.example.tourmatebackend.dto.admin.dashboard.AdminDashboardDTO;
+import com.example.tourmatebackend.dto.admin.dashboard.MonthlyRevenueDTO;
 import com.example.tourmatebackend.dto.admin.dashboard.RecentBookingDTO;
 import com.example.tourmatebackend.dto.admin.dashboard.TopGuideDTO;
 import com.example.tourmatebackend.service.AdminService;
@@ -31,5 +32,11 @@ public class DashboardController {
     @GetMapping("/top-guides")
     public List<TopGuideDTO> getTopGuides() {
         return adminService.getTopGuides();
+    }
+
+
+    @GetMapping("/monthly-revenue")
+    public List<MonthlyRevenueDTO> getMonthlyRevenue() {
+        return adminService.getMonthlyRevenue();
     }
 }

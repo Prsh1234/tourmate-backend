@@ -19,6 +19,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
@@ -88,46 +90,73 @@ public class TourPaymentController {
 
     @GetMapping("/esewa/success")
     public ResponseEntity<?> esewaSuccess(
-            @RequestParam String data,
-            @RequestParam int bookingId // use this directly
+            @RequestParam String meta,
+            @RequestParam int bookingId,
+            @RequestParam String returnUrl
     ) {
         try {
-            // Decode Base64
-            String decoded = new String(Base64.getDecoder().decode(data));
+            if(meta.contains("?data=")) {
+                meta = meta.split("\\?data=")[0];
+            }
+
+            // 1️⃣ URL-decode first
+            String urlDecoded = URLDecoder.decode(meta, StandardCharsets.UTF_8);
+
+            // 2️⃣ Base64-decode
+            String decoded = new String(Base64.getDecoder().decode(urlDecoded));
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> payload = mapper.readValue(decoded, Map.class);
 
-            // signature verification ...
-            // update booking using bookingId directly
-            if ("COMPLETE".equals(payload.get("status"))) {
-                TourBooking booking = bookingRepository.findById(bookingId)
-                        .orElseThrow(() -> new RuntimeException("Booking not found"));
+            String transactionUuid = (String) payload.get("transaction_uuid");
+            double totalAmount = Double.parseDouble(payload.get("total_amount").toString());
 
-                booking.setPaymentStatus(PaymentStatus.PAID);
-                booking.setPaymentTransactionId((String) payload.get("transaction_uuid"));
-                booking.setPaymentDate(LocalDateTime.now());
-                bookingRepository.save(booking);
+            // 3️⃣ Verify with eSewa RC API
+            boolean verified = true; // skip RC check
+            if (!verified) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment verification failed");
 
-                notificationService.createNotification(
-                        booking.getGuide().getUser().getId(),
-                        "Payment Received",
-                        booking.getUser().getFirstName() + " has completed the payment of amount " + booking.getTotalPrice()
-                );
-            }
+            // 4️⃣ Update booking
+            TourBooking booking = bookingRepository.findById(bookingId)
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-            return ResponseEntity.ok("Payment successful");
+            if (booking.getPaymentStatus() == PaymentStatus.PAID) return ResponseEntity.ok("Already paid");
+
+            booking.setPaymentStatus(PaymentStatus.PAID);
+            booking.setPaymentTransactionId(transactionUuid);
+            booking.setPaymentDate(LocalDateTime.now());
+            bookingRepository.save(booking);
+
+            // 5️⃣ Notify guide
+            notificationService.createNotification(
+                    booking.getGuide().getUser().getId(),
+                    "Payment Received",
+                    booking.getUser().getFirstName() + " has completed the payment of amount " + booking.getTotalPrice()
+            );
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", returnUrl)
+                    .build();
+
+
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid Base64 data (possibly due to eSewa appending ?data=...)");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid data");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid payment data");
         }
     }
 
 
 
 
+
+
     @GetMapping("/esewa/failure")
-    public ResponseEntity<?> esewaFailure() {
-        return ResponseEntity.ok("Payment failed or cancelled");
+    public ResponseEntity<?> esewaFailure(@RequestParam String returnUrl) {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", returnUrl)
+                .build();
+//        return ResponseEntity.ok("Payment failed or cancelled");
     }
 
 

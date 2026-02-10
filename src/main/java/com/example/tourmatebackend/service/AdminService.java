@@ -2,9 +2,11 @@ package com.example.tourmatebackend.service;
 
 
 import com.example.tourmatebackend.dto.admin.dashboard.AdminDashboardDTO;
+import com.example.tourmatebackend.dto.admin.dashboard.MonthlyRevenueDTO;
 import com.example.tourmatebackend.dto.admin.dashboard.RecentBookingDTO;
 import com.example.tourmatebackend.dto.admin.dashboard.TopGuideDTO;
 import com.example.tourmatebackend.repository.*;
+import com.example.tourmatebackend.states.PaymentStatus;
 import com.example.tourmatebackend.states.Role;
 import com.example.tourmatebackend.states.GuideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
+import java.util.Locale;
+import java.time.format.*;
+
 
 @Service
 public class AdminService {
@@ -91,6 +97,25 @@ public class AdminService {
                 })
                 .toList();
     }
+    public List<MonthlyRevenueDTO> getMonthlyRevenue() {
+        List<Object[]> result =
+                bookingRepo.findMonthlyRevenue(PaymentStatus.PAID);
+
+        return result.stream()
+                .map(row -> {
+                    int year = ((Number) row[0]).intValue();
+                    int month = ((Number) row[1]).intValue();
+                    double revenue = ((Number) row[2]).doubleValue();
+
+                    String label =
+                            Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                                    + " " + year;
+
+                    return new MonthlyRevenueDTO(label, revenue);
+                })
+                .toList();
+    }
+
     private double calcPercentageChange(double change, double oldValue) {
         if (oldValue == 0) return 0.0;
         return (change / oldValue) * 100.0;

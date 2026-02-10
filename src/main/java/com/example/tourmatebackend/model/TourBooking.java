@@ -40,6 +40,8 @@ public class TourBooking {
     // Payment fields
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+
+    @Column(unique = true)
     private String paymentTransactionId; // mock transaction ID
     private LocalDateTime paymentDate;
     // Getters & Setters

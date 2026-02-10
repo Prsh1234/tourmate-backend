@@ -3,6 +3,7 @@ package com.example.tourmatebackend.repository;
 import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.TourBooking;
 import com.example.tourmatebackend.states.BookingStatus;
+import com.example.tourmatebackend.states.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -153,4 +154,19 @@ GROUP BY g.id, g.fullName, g.location
 ORDER BY SUM(b.totalPrice) DESC
 """)
     List<Object[]> findTopGuidesThisMonth(Pageable pageable);
+
+
+
+    @Query("""
+    SELECT 
+        YEAR(tb.bookingDate),
+        MONTH(tb.bookingDate),
+        SUM(tb.totalPrice)
+    FROM TourBooking tb
+    WHERE tb.paymentStatus = :status
+    GROUP BY YEAR(tb.bookingDate), MONTH(tb.bookingDate)
+    ORDER BY YEAR(tb.bookingDate), MONTH(tb.bookingDate)
+""")
+    List<Object[]> findMonthlyRevenue(@Param("status") PaymentStatus status);
+
 }
