@@ -24,6 +24,10 @@ public class User {
     private String lastName;
     @Column(unique = true)
     private String phoneNumber;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Support> supportMessages;
+
+
 
     @Lob
     @Column(name = "profilePic", columnDefinition = "LONGBLOB")
@@ -132,11 +136,9 @@ public class User {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    //
-//    public List<Tour> getBookedTours() {
-//        return bookedTours;
-//    }
-//    public void setBookedTours(List<Tour> bookedTours) {
-//        this.bookedTours = bookedTours;
-//    }
+
+
+    public List<Support> getSupportMessages() { return supportMessages; }
+    public void setSupportMessages(List<Support> supportMessages) { this.supportMessages = supportMessages; }
+
 }

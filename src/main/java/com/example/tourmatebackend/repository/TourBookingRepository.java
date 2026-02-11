@@ -1,6 +1,5 @@
 package com.example.tourmatebackend.repository;
 
-import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.TourBooking;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.PaymentStatus;

@@ -129,7 +129,12 @@ public class TourPaymentController {
             notificationService.createNotification(
                     booking.getGuide().getUser().getId(),
                     "Payment Received",
-                    booking.getUser().getFirstName() + " has completed the payment of amount " + booking.getTotalPrice()
+                    booking.getUser().getFirstName() + " has completed the payment of amount " + booking.getTotalPrice() +  " for " + booking.getTour().getName()+"."
+            );
+            notificationService.createNotification(
+                    booking.getUser().getId(),
+                    "Payment Complete",
+                    "You have completed the payment of amount " + booking.getTotalPrice() +  " for " + booking.getTour().getName()+"."
             );
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", returnUrl)

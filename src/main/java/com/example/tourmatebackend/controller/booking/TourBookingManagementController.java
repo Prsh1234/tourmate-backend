@@ -63,7 +63,7 @@ public class TourBookingManagementController {
         notificationService.createNotification(
                 booking.getUser().getId(),
                 "Booking Request Accepted",
-                booking.getGuide().getUser().getFirstName() + " has accepted the booking request"
+                booking.getGuide().getUser().getFirstName() + " has accepted the booking request for " + booking.getTour().getName()+"."
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -130,7 +130,7 @@ public class TourBookingManagementController {
         notificationService.createNotification(
                 booking.getUser().getId(),
                 "Booking Request Rejected",
-                booking.getGuide().getUser().getFirstName() + " has rejected the booking request"
+                booking.getGuide().getUser().getFirstName() + " has rejected the booking request  for " + booking.getTour().getName()+"."
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -166,7 +166,7 @@ public class TourBookingManagementController {
         notificationService.createNotification(
                 booking.getUser().getId(),
                 "Booking Cancelled",
-                booking.getGuide().getUser().getFirstName() + " has camcelled the booking."
+                booking.getGuide().getUser().getFirstName() + " has cancelled the booking for " + booking.getTour().getName()+"."
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",

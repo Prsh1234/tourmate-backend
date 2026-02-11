@@ -5,12 +5,10 @@ import com.example.tourmatebackend.dto.review.ReviewResponseDTO;
 import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.GuideReview;
 import com.example.tourmatebackend.model.User;
-import com.example.tourmatebackend.repository.GuideBookingRepository;
 import com.example.tourmatebackend.repository.GuideRepository;
 import com.example.tourmatebackend.repository.GuideReviewRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.service.ReviewService;
-import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,8 +29,6 @@ public class GuideReviewController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private GuideBookingRepository guideBookingRepository;
 
     @Autowired
     private GuideReviewRepository guideReviewRepository;
@@ -49,20 +45,13 @@ public class GuideReviewController {
     ) {
         User user = getUserFromToken(authHeader);
 
-//        // check if user had a completed booking with this guide
-//        boolean hasCompletedBooking = guideBookingRepository
-//                .existsByUserIdAndGuideIdAndStatus(user.getId(), guideId, BookingStatus.COMPLETED);
-//
-//        if (!hasCompletedBooking) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body(Map.of("status", "error", "message", "You can review only after completing a booking."));
-//        }
-//
-//        // prevent duplicate review
-//        if (guideReviewRepository.existsByUserIdAndGuideId(user.getId(), guideId)) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body(Map.of("status", "error", "message", "You have already reviewed this guide."));
-//        }
+
+
+        // prevent duplicate review
+        if (guideReviewRepository.existsByUserIdAndGuideId(user.getId(), guideId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("status", "error", "message", "You have already reviewed this guide."));
+        }
 
         Guide guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new RuntimeException("Guide not found"));

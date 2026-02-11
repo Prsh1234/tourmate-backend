@@ -31,11 +31,15 @@ public class NotificationController {
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    @GetMapping("/unread/{userId}")
-    public List<Notification> getUnreadNotifications(@RequestHeader("Authorization") String authHeader) {
+    @GetMapping("/unread")
+    public List<Notification> getUnreadNotifications(
+            @RequestHeader("Authorization") String authHeader) {
+
         int userId = extractUserId(authHeader);
-        return notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
+        return notificationRepository
+                .findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
     }
+
 
     @PutMapping("/mark-read/{id}")
     public String markAsRead(@PathVariable Long id) {
@@ -49,20 +53,6 @@ public class NotificationController {
         return user.getId();
     }
 
-    //Implementation
-//    useEffect(() => {
-//    const interval = setInterval(() => {
-//                fetch(`/api/notifications/unread/${userId}`)
-//            .then(res => res.json())
-//            .then(data => {
-//        if (data.length > 0) {
-//            // Show pop-up or badge
-//            console.log("New notifications:", data);
-//        }
-//            });
-//    }, 10000); // 10 seconds
-//
-//        return () => clearInterval(interval);
-//    }, []);
+
 
 }

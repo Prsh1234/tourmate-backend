@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/traveller/**").authenticated()
                         .requestMatchers("/api/payment/**").authenticated()
+                        .requestMatchers("/api/support/**").authenticated()
                         // Only authenticated users (any role) can register as guide
                         .requestMatchers("/api/user/**").authenticated()
 

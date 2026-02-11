@@ -2,9 +2,7 @@ package com.example.tourmatebackend.service;
 
 import com.example.tourmatebackend.dto.guide.EarningsSummaryDTO;
 import com.example.tourmatebackend.dto.guide.TransactionDTO;
-import com.example.tourmatebackend.model.GuideBooking;
 import com.example.tourmatebackend.model.TourBooking;
-import com.example.tourmatebackend.repository.GuideBookingRepository;
 import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.states.BookingStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 public class EarningsService {

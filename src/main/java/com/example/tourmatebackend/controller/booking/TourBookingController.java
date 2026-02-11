@@ -1,6 +1,5 @@
 package com.example.tourmatebackend.controller.booking;
 
-import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingDetailsDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingRequestDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingResponseDTO;
@@ -109,7 +108,7 @@ public class TourBookingController {
         notificationService.createNotification(
                 guide.getUser().getId(),
                 "Booking Request Received",
-                "You have received a request to book you guide."
+                user.getFirstName()+" "+user.getLastName()+ " has requested to book "+tour.getName()+"."
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -184,6 +183,11 @@ public class TourBookingController {
 
         TourBooking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Tour booking not found"));
+        if(booking.getUser().getId()!=user.getId()){
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "Not your Booking"));
+        }
 
         long reviewCount = reviewService.getTourReviewCount(booking.getTour().getId());
         double avgRating = reviewService.getTourAverageRating(booking.getTour().getId());
@@ -232,7 +236,7 @@ public class TourBookingController {
         notificationService.createNotification(
                 receiver,
                 "Booking Request Cancelled",
-                user.getFirstName() + " has cancelled their booking request"
+                user.getFirstName() + " has cancelled their booking request for "+booking.getTour().getName()+"."
         );
 
         return ResponseEntity.ok(Map.of(

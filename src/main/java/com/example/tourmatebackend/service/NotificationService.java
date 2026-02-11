@@ -7,6 +7,8 @@ import com.example.tourmatebackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class NotificationService {
 
@@ -35,4 +37,21 @@ public class NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    public List<Notification> getUserNotifications(int userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    public void markAllAsRead(int userId) {
+        List<Notification> notifications =
+                notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        notifications.forEach(n -> n.setRead(true));
+        notificationRepository.saveAll(notifications);
+    }
+
+    public void clearAll(int userId) {
+        notificationRepository.deleteByUserId(userId);
+    }
+
 }

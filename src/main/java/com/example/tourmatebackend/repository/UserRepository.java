@@ -14,5 +14,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     //admin
     long countByRole(Role role);
-    long countByJoinedAfter(LocalDate date);
+    long countByRoleAndJoinedAfter(Role role, LocalDate date);
 }

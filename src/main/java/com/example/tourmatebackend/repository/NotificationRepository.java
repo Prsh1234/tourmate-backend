@@ -12,4 +12,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // Get only unread notifications (for "live" updates)
     List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(int userId);
+
+    long countByUserIdAndIsReadFalse(int userId);
+
+    void deleteByUserId(int userId);
 }

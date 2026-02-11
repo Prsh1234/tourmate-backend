@@ -6,6 +6,7 @@ import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.GuideReview;
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.*;
+import com.example.tourmatebackend.service.NotificationService;
 import com.example.tourmatebackend.service.ReviewService;
 import com.example.tourmatebackend.states.BookingStatus;
 import com.example.tourmatebackend.states.GuideStatus;
@@ -32,8 +33,6 @@ public class UserManagementController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private GuideBookingRepository guideBookingRepository;
-    @Autowired
     private TourBookingRepository tourBookingRepository;
     @Autowired
     private GuideReviewRepository guideReviewRepository;
@@ -43,6 +42,9 @@ public class UserManagementController {
     private TourRepository tourRepository;
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
 
@@ -73,14 +75,12 @@ public class UserManagementController {
                 List.of(BookingStatus.APPROVED, BookingStatus.COMPLETED);
 
         List<UserManagementResponseDTO> dtoList = userList.stream().map(user -> {
-            double guideSpent = guideBookingRepository
-                    .getTotalSpentByUser(user.getId(), validStatuses);
+
 
             double tourSpent = tourBookingRepository
                     .getTotalSpentByUser(user.getId(), validStatuses);
 
-            long guideBookings = guideBookingRepository
-                    .countByUserIdAndStatusIn(user.getId(), validStatuses);
+
 
             long tourBookings = tourBookingRepository
                     .countByUserIdAndStatusIn(user.getId(), validStatuses);
@@ -91,8 +91,8 @@ public class UserManagementController {
             dto.setProfilePic(user.getProfilePic());
             dto.setFirstName(user.getFirstName());
             dto.setLastName(user.getLastName());
-            dto.setSpent(guideSpent + tourSpent);
-            dto.setBookings((int) (guideBookings + tourBookings));
+            dto.setSpent(tourSpent);
+            dto.setBookings((int) (tourBookings));
             dto.setUserId(user.getId());
             dto.setRole(user.getRole());
             dto.setSuspended(user.isSuspended());
@@ -199,11 +199,26 @@ public class UserManagementController {
         }
         else if(guide.getStatus() == GuideStatus.SUSPENDED) {
             guide.setStatus(GuideStatus.APPROVED);
+            notificationService.createNotification(
+                    guide.getUser().getId(),
+                    "Suspension",
+                    "You have been unsuspended."
+            );
         }
         else{
             guide.setStatus(GuideStatus.SUSPENDED);
+            notificationService.createNotification(
+                    guide.getUser().getId(),
+                    "Suspension",
+                    "You have been suspended."
+            );
         }
         guideRepository.save(guide);
+        notificationService.createNotification(
+                guide.getUser().getId(),
+                "Suspension",
+                "You have been suspended."
+        );
         return ResponseEntity.ok(
                 Map.of(
                         "status", "success",

@@ -19,6 +19,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Locale;
 import java.time.format.*;
+import java.util.Optional;
 
 
 @Service
@@ -38,14 +39,18 @@ public class AdminService {
         long totalTravelers = userRepo.countByRole(Role.TRAVELLER);
         long totalGuides = guideRepo.countByStatus(GuideStatus.APPROVED);
         long totalBookings = bookingRepo.count();
-        double totalRevenue = bookingRepo.sumRevenueSince(LocalDateTime.of(2000,1,1,0,0)); // all time
-
+        double totalRevenue = Optional.ofNullable(
+                bookingRepo.sumRevenueSince(LocalDateTime.of(2000,1,1,0,0))
+        ).orElse(0.0);
         // counts last week for percentage
         LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-        long travelersLastWeek = userRepo.countByJoinedAfter(lastWeek.toLocalDate());
+        long travelersLastWeek = userRepo
+                .countByRoleAndJoinedAfter(Role.TRAVELLER, lastWeek.toLocalDate());
+
         long guidesLastWeek = guideRepo.countByJoinedAfter(lastWeek.toLocalDate());
         long bookingsLastWeek = bookingRepo.countByBookingDateAfter(lastWeek);
-        Double revenueLastWeek = bookingRepo.sumRevenueSince(lastWeek);
+        Double revenueLastWeek = Optional.ofNullable(bookingRepo.sumRevenueSince(lastWeek)).orElse(0.0);;
+
         if (revenueLastWeek == null) revenueLastWeek = 0.0;
 
         stats.setTotalTravelers(totalTravelers);
@@ -54,7 +59,11 @@ public class AdminService {
         stats.setRevenue(totalRevenue);
 
         // percentage change calculation
-        stats.setTravelersChange(calcPercentageChange(totalTravelers - travelersLastWeek, travelersLastWeek));
+        long previousTravelers = totalTravelers - travelersLastWeek;
+
+        stats.setTravelersChange(
+                calcPercentageChange(travelersLastWeek, previousTravelers)
+        );
         stats.setGuidesChange(calcPercentageChange(totalGuides - guidesLastWeek, guidesLastWeek));
         stats.setBookingsChange(calcPercentageChange(totalBookings - bookingsLastWeek, bookingsLastWeek));
         stats.setRevenueChange(calcPercentageChange(totalRevenue - revenueLastWeek, revenueLastWeek));
