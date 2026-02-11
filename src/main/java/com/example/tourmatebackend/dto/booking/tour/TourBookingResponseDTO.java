@@ -1,6 +1,7 @@
 package com.example.tourmatebackend.dto.booking.tour;
 
 import com.example.tourmatebackend.dto.user.UserDTO;
+import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.model.TourBooking;
 import jakarta.persistence.Column;
@@ -19,6 +20,8 @@ public class TourBookingResponseDTO {
     private double totalPrice;
     private int travellers;
     private String status;
+    private Guide guide;
+
 
     // Payment fields
     private String paymentStatus;
@@ -29,7 +32,39 @@ public class TourBookingResponseDTO {
     private LocalDateTime bookingDate = LocalDateTime.now();
     private LocalDate startDate;
 
+    private long reviewCount;
+    private double averageRating;
+
+    public TourBookingResponseDTO(
+            TourBooking booking,
+            long reviewCount,
+            double averageRating
+    ) {
+        this.guide = booking.getGuide();
+        this.bookingId = booking.getId();
+        this.tourId = booking.getTour().getId();
+        this.tourName = booking.getTour().getName();
+
+        this.guideName = booking.getGuide().getUser().getFirstName()
+                + " " + booking.getGuide().getUser().getLastName();
+
+        this.totalPrice = booking.getTotalPrice();
+        this.travellers = booking.getTravellers();
+        this.status = booking.getStatus().name();
+        this.paymentStatus = booking.getPaymentStatus().name();
+        this.paymentTransactionId = booking.getPaymentTransactionId();
+        this.tour = booking.getTour();
+        this.bookingDate = booking.getBookingDate();
+        this.startDate = booking.getStartDate();
+        this.user = new UserDTO(booking.getUser());
+
+        this.reviewCount = reviewCount;
+        this.averageRating = averageRating;
+    }
+
+
     public TourBookingResponseDTO(TourBooking booking) {
+        this.guide = booking.getGuide();
         this.bookingId = booking.getId();
         this.tourId = booking.getTour().getId();
         this.tourName = booking.getTour().getName();
@@ -51,6 +86,17 @@ public class TourBookingResponseDTO {
 
     // getters...
 
+    public long getReviewCount() {
+        return reviewCount;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public Guide getGuide() {
+        return guide;
+    }
 
     public UserDTO getUser() {
         return user;

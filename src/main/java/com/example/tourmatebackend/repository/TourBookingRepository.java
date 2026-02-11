@@ -17,6 +17,7 @@ import java.util.List;
 public interface TourBookingRepository extends JpaRepository<TourBooking, Integer> {
 
     Page<TourBooking> findByUserId(int userId, Pageable pageable);
+
     Page<TourBooking> findByGuideId(int guideId, Pageable pageable); // guide's bookings
 
     Page<TourBooking> findByGuideIdAndStatusIn(int guideId, List<BookingStatus> statuses, Pageable pageable);

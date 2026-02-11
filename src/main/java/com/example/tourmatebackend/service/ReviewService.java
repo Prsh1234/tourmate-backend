@@ -76,4 +76,14 @@ public class ReviewService {
 
         return tourReviewRepository.save(review);
     }
+
+    public long getTourReviewCount(int tourId) {
+        return tourReviewRepository.countByTourId(tourId);
+    }
+
+    public double getTourAverageRating(int tourId) {
+        Double avg = tourReviewRepository.findAverageRatingByTourId(tourId);
+        return avg == null ? 0.0 : Math.round(avg * 100.0) / 100.0;
+    }
+
 }

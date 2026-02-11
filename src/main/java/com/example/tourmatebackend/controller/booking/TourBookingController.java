@@ -1,11 +1,13 @@
 package com.example.tourmatebackend.controller.booking;
 
 import com.example.tourmatebackend.dto.booking.guide.GuideBookingResponseDTO;
+import com.example.tourmatebackend.dto.booking.tour.TourBookingDetailsDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingRequestDTO;
 import com.example.tourmatebackend.dto.booking.tour.TourBookingResponseDTO;
 import com.example.tourmatebackend.model.*;
 import com.example.tourmatebackend.repository.*;
 import com.example.tourmatebackend.service.NotificationService;
+import com.example.tourmatebackend.service.ReviewService;
 import com.example.tourmatebackend.states.BookingStatus;
 
 import com.example.tourmatebackend.utils.JwtUtil;
@@ -43,6 +45,9 @@ public class TourBookingController {
 
     @Autowired
     private TourBookingRepository bookingRepository;
+    @Autowired
+    private ReviewService reviewService;
+
 
     // --------------------------------------
     // CREATE BOOKING
@@ -146,7 +151,18 @@ public class TourBookingController {
         }
 
         List<TourBookingResponseDTO> bookings = bookingPage.getContent().stream()
-                .map(TourBookingResponseDTO::new)
+                .map(booking -> {
+                    int tourId = booking.getTour().getId();
+
+                    long reviewCount = reviewService.getTourReviewCount(tourId);
+                    double avgRating = reviewService.getTourAverageRating(tourId);
+
+                    return new TourBookingResponseDTO(
+                            booking,
+                            reviewCount,
+                            avgRating
+                    );
+                })
                 .toList();
 
         return ResponseEntity.ok(Map.of(
@@ -158,46 +174,73 @@ public class TourBookingController {
                 "totalPages", bookingPage.getTotalPages()
         ));
     }
-    @PutMapping("/{bookingId}/cancel")
-    public ResponseEntity<?> cancelTourBooking(
+    @GetMapping("/bookingDetails")
+    public ResponseEntity<?> getTourBookingDetails(
             @RequestHeader("Authorization") String authHeader,
-            @PathVariable int bookingId
+            @RequestParam(required = true) int bookingId
     ) {
         // Extract authenticated user
         User user = getUserFromToken(authHeader);
 
-        // Find the tour booking
         TourBooking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Tour booking not found"));
 
-        // Ensure the user owns this booking
+        long reviewCount = reviewService.getTourReviewCount(booking.getTour().getId());
+        double avgRating = reviewService.getTourAverageRating(booking.getTour().getId());
+
+        TourBookingDetailsDTO dto = new TourBookingDetailsDTO(booking, avgRating, reviewCount);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", dto
+        ));
+    }
+
+    @DeleteMapping("/{bookingId}/cancel")
+    public ResponseEntity<?> cancelTourBooking(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int bookingId
+    ) {
+        User user = getUserFromToken(authHeader);
+
+        TourBooking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Tour booking not found"));
+
+        // Ensure ownership
         if (booking.getUser().getId() != user.getId()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("status", "error", "message", "You can only cancel your own bookings."));
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "You can only cancel your own bookings."
+                    ));
         }
 
-        // Only allow cancelling if status is PENDING
+        // Only pending/requested bookings can be cancelled
         if (booking.getStatus() != BookingStatus.PENDING) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("status", "error", "message", "Only pending bookings can be cancelled."));
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Only pending bookings can be cancelled."
+                    ));
         }
 
-        // Cancel the booking
-        booking.setStatus(BookingStatus.CANCELLED);
-        bookingRepository.save(booking);
         int receiver = booking.getGuide().getUser().getId();
+
+        // DELETE booking
+        bookingRepository.delete(booking);
+
         notificationService.createNotification(
                 receiver,
                 "Booking Request Cancelled",
-                booking.getUser().getFirstName() + " has cancelled their request"
+                user.getFirstName() + " has cancelled their booking request"
         );
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Tour booking cancelled successfully",
-                "data", new TourBookingResponseDTO(booking)
+                "message", "Booking request cancelled successfully"
         ));
     }
+
     @GetMapping("/upcoming-trips")
     public ResponseEntity<?> getUpcomingTrips(
             @RequestHeader("Authorization") String authHeader,
