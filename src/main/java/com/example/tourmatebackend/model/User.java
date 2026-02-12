@@ -28,7 +28,12 @@ public class User {
     private List<Support> supportMessages;
 
 
+    @Column(unique = true)
+    private String verificationToken;
+    @Column(unique = true)
+    private String resetToken;
 
+    private boolean enabled = false;
     @Lob
     @Column(name = "profilePic", columnDefinition = "LONGBLOB")
     private byte[] profilePic;
@@ -65,6 +70,32 @@ public class User {
 
 
     // Getters & Setters
+
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public int getId() {
         return id;
     }

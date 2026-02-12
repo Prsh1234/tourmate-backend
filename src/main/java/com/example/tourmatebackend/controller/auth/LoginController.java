@@ -2,6 +2,7 @@ package com.example.tourmatebackend.controller.auth;
 
 import com.example.tourmatebackend.model.User;
 import com.example.tourmatebackend.repository.UserRepository;
+import com.example.tourmatebackend.service.EmailService;
 import com.example.tourmatebackend.states.Role;
 import com.example.tourmatebackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,12 @@ public class LoginController {
                     .body(Map.of("error", "Invalid email or password"));
         }
 
-        User user = optionalUser.get();
 
+        User user = optionalUser.get();
+        if (!user.isEnabled()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Please verify your email first"));
+        }
         if (user.isSuspended()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User is suspended"));

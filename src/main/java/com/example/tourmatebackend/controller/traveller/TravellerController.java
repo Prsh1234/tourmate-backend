@@ -34,8 +34,8 @@ public class TravellerController {
         String email = jwtUtil.extractEmail(token);
         User user = userRepository.findByEmail(email).orElseThrow();
 
-        if (user == null || user.getGuide() == null) {
-            return ResponseEntity.status(403).body("Not a guide account");
+        if (user == null) {
+            return ResponseEntity.status(403).body("User Doesn't exit.");
         }
 
         TravellerDashboardDTO dto = travellerService.getTravellerDashboard(user.getId());

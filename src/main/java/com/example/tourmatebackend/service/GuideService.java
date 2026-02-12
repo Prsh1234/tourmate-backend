@@ -89,7 +89,9 @@ public class GuideService {
 
     }
 
-
+    public Guide findByUserId(int userId) {
+        return guideRepository.findByUserId(userId).orElse(null);
+    }
     public Guide registerGuide(User user, GuideRegisterRequestDTO dto, MultipartFile profilePic, MultipartFile governmentPic) throws IOException, IOException {
         Guide guide = new Guide();
 
@@ -105,6 +107,9 @@ public class GuideService {
         guide.setDob(dto.getDob());
         guide.setUser(user);
         guide.setLocation(dto.getLocation());
+        guide.setBankName(dto.getBankName());
+        guide.setAccountNumber(dto.getAccountNumber());
+        guide.setAccountHolderName(dto.getAccountHolderName());
 
         if (profilePic != null && !profilePic.isEmpty()) {
             guide.setProfilePic(profilePic.getBytes());

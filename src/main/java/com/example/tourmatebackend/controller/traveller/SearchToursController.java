@@ -116,7 +116,7 @@ public class SearchToursController {
         sort = sortDir.equalsIgnoreCase("desc") ? sort.descending() : sort.ascending();
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
-
+        int currentUserId = extractUserId(authHeader);
         Page<Tour> tourPage = tourRepository
                 .findByStatusAndPriceBetween(
                         TourStatus.POSTED,
@@ -128,6 +128,8 @@ public class SearchToursController {
         // Filter by category and language
         List<TourResponseDTO> filteredTours =
                 tourPage.getContent().stream()
+
+                        .filter(t -> t.getGuide().getUser().getId() != currentUserId)
                         // CATEGORY FILTER
                         .filter(t -> category == null || category.isEmpty() ||
                                 t.getCategories().stream()

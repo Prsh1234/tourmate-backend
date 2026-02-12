@@ -63,6 +63,7 @@ public class SearchGuideController {
         Page<Guide> guidePage = guideRepository.findByStatus(GuideStatus.APPROVED, pageable);
 
         List<GuideResponseDTO> data = guidePage.getContent().stream()
+                .filter(g -> g.getUser().getId() != extractUserId(authHeader))
                 .map(g -> mapToDTO(g, authHeader))
                 .toList();
 
@@ -108,6 +109,7 @@ public class SearchGuideController {
 
         // Map to DTO and filter by rating in-memory
         List<GuideResponseDTO> filtered = dbPage.getContent().stream()
+                .filter(g -> g.getUser().getId() != extractUserId(authHeader))
                 .filter(g -> category == null || category.isEmpty()
                         || g.getCategories().stream().map(Enum::name).anyMatch(category::contains))
                 .filter(g -> language == null || language.isEmpty()

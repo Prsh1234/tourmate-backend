@@ -58,22 +58,38 @@ public class GuideRegisterController {
     ) {
         try {
             GuideRegisterRequestDTO guideRequest = objectMapper.readValue(guideJson, GuideRegisterRequestDTO.class);
+
+            // Validate phone
             if (!isValidPhone(guideRequest.getPhoneNumber())) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "status", "error",
                         "message", "Invalid Nepal phone number"
                 ));
             }
-            // Now proceed as before
-            User tokenUser = userRepository.findByEmail(jwtUtil.extractEmail(authHeader.replace("Bearer ", ""))).orElseThrow();
-            if (tokenUser.getId() != userId) {
 
+            // Validate user identity
+            User tokenUser = userRepository.findByEmail(
+                    jwtUtil.extractEmail(authHeader.replace("Bearer ", ""))
+            ).orElseThrow();
+            if (tokenUser.getId() != userId) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
                         "status", "error",
                         "message", "Access denied!"
                 ));
             }
 
+            // -----------------------------
+            // Prevent duplicate registration
+            // -----------------------------
+            Guide existingGuide = guideService.findByUserId(userId);
+            if (existingGuide != null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "You have already submitted a guide registration request"
+                ));
+            }
+
+            // Handle files
             if (governmentPic != null) {
                 guideRequest.setGovernmentPic(governmentPic.getBytes());
             }
@@ -84,22 +100,19 @@ public class GuideRegisterController {
             User user = userRepository.findById(userId).orElseThrow();
             Guide guide = guideService.registerGuide(user, guideRequest, profilePic, governmentPic);
 
-
-
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "message", "Guide registration request submitted"
             ));
 
         } catch (Exception e) {
-
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", "error",
                     "message", e.getMessage()
             ));
         }
     }
+
 
 
 }
