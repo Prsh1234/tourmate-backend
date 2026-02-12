@@ -109,7 +109,8 @@ public class AdminGuideController {
     public ResponseEntity<?> decideGuide(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int guideId,
-            @RequestParam("action") String action
+            @RequestParam("action") String action,
+            @RequestParam(required = false, value = "reason") String reason
     ) {
 
         User requester = extractUserFromToken(authHeader);
@@ -121,11 +122,17 @@ public class AdminGuideController {
                     .body(Map.of("status", "error", "message", "Guide not found"));
         }
 
-        if (action.equalsIgnoreCase("approve")) {
+        // Require reason if rejecting
+        if ("reject".equalsIgnoreCase(action) && (reason == null || reason.isBlank())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "Reason is required when rejecting a guide"));
+        }
+
+        if ("approve".equalsIgnoreCase(action)) {
             guide.setStatus(GuideStatus.APPROVED);
             guide.getUser().setRole(Role.GUIDE);
 
-        } else if (action.equalsIgnoreCase("reject")) {
+        } else if ("reject".equalsIgnoreCase(action)) {
             guide.setStatus(GuideStatus.REJECTED);
 
             if (guide.getUser().getRole() == Role.GUIDE) {
@@ -142,18 +149,29 @@ public class AdminGuideController {
         GuideDecisionResponseDTO dto = new GuideDecisionResponseDTO();
         dto.setGuideId(guide.getId());
         dto.setStatus(guide.getStatus().name());
-        notificationService.createNotification(
-                guide.getUser().getId(),
-                "Registration Success",
-                "You Registration has been " +action +" ."
-        );
+
+        // Send notifications
+        if ("reject".equalsIgnoreCase(action)) {
+            notificationService.createNotification(
+                    guide.getUser().getId(),
+                    "Registration Status",
+                    "Your registration has been rejected because: " + reason
+            );
+        } else if ("approve".equalsIgnoreCase(action)) {
+            notificationService.createNotification(
+                    guide.getUser().getId(),
+                    "Registration Status",
+                    "Your registration has been approved."
+            );
+        }
 
         return ResponseEntity.ok(
                 Map.of(
                         "status", "success",
-                        "message", "Guide request " + action + "d successfully",
+                        "message", "Guide request " + action.toLowerCase() + "d successfully",
                         "data", dto
                 )
         );
     }
+
 }

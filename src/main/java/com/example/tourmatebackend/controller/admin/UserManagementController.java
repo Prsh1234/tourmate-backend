@@ -151,7 +151,7 @@ public class UserManagementController {
         User requester = extractUserFromToken(authHeader);
         if (!isAdmin(requester)) return unauthorized();
 
-        List<Guide> guideList = guideRepository.findAll()
+        List<Guide> guideList = guideRepository.findByStatus(GuideStatus.APPROVED)
                 .stream()
                 .collect(Collectors.toList());
 
@@ -223,8 +223,12 @@ public class UserManagementController {
                 Map.of(
                         "status", "success",
                         "newStatus", guide.getStatus(),
-                        "message", "Guide status updated"
+                        "message",
+                        guide.getStatus().equals("SUSPENDED")
+                                ? "User suspended successfully"
+                                : "User unsuspended successfully"
                 )
+
         );
     }
 

@@ -7,6 +7,7 @@ import com.example.tourmatebackend.model.Guide;
 import com.example.tourmatebackend.model.Tour;
 import com.example.tourmatebackend.model.TourItinerary;
 import com.example.tourmatebackend.model.User;
+import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.repository.TourRepository;
 import com.example.tourmatebackend.repository.UserRepository;
 import com.example.tourmatebackend.states.TourStatus;
@@ -37,6 +38,8 @@ public class TourController {
     private ObjectMapper objectMapper;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private TourBookingRepository tourBookingRepository;
 
     // ==========================
     // Helper methods
@@ -347,6 +350,13 @@ public class TourController {
         if (tour.getGuide().getId() != user.getGuide().getId())
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("status", "error", "message", "You can only delete your own tours."));
+
+        // ✅ Check if bookings exist
+        boolean hasBookings = !tourBookingRepository.findByTourId(tourId).isEmpty();
+        if (hasBookings) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("status", "error", "message", "Cannot delete tour: there are existing bookings."));
+        }
 
         tourRepository.delete(tour);
         return ResponseEntity.ok(Map.of("status", "success", "message", "Tour deleted successfully."));

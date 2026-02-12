@@ -4,6 +4,7 @@ import com.example.tourmatebackend.states.Category;
 import com.example.tourmatebackend.states.Language;
 import com.example.tourmatebackend.states.TourStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -74,6 +75,19 @@ public class Tour {
     @CollectionTable(name = "tour_important_info", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "info_item")
     private List<String> importantInformation;
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<TourBooking> bookings;
+
+
+    public List<TourBooking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<TourBooking> bookings) {
+        this.bookings = bookings;
+    }
+
     public List<TourItinerary> getItineraries() {
         return itineraries;
     }

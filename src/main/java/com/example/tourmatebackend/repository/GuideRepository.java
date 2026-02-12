@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface GuideRepository extends JpaRepository<Guide, Integer> {
     Optional<Guide> findByUserId(int userId);
-
+    List<Guide> findByStatus(GuideStatus status);
     Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
 
     Page<Guide> findByStatusAndPriceBetween(

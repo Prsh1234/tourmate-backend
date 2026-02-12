@@ -112,8 +112,7 @@ public class TourBookingController {
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Booking request submitted",
-                "data", new TourBookingResponseDTO(booking)
+                "message", "Booking request submitted"
         ));
 
     }
@@ -183,7 +182,7 @@ public class TourBookingController {
 
         TourBooking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Tour booking not found"));
-        if(booking.getUser().getId()!=user.getId()){
+        if(booking.getUser().getId()!=user.getId()&&booking.getGuide().getUser().getId()!=user.getId()){
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("message", "Not your Booking"));
