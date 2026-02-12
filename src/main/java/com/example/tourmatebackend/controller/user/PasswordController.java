@@ -19,7 +19,14 @@ public class PasswordController {
 
     @Autowired private UserRepository userRepository;
     @Autowired private JwtUtil jwtUtil;
-
+    private boolean isStrongPassword(String password) {
+        return password != null &&
+                password.length() >= 8 &&
+                password.matches(".*[A-Z].*") &&      // at least 1 uppercase
+                password.matches(".*[a-z].*") &&      // at least 1 lowercase
+                password.matches(".*\\d.*") &&        // at least 1 digit
+                password.matches(".*[@$!%*?&].*");    // at least 1 special character
+    }
     // --------------------------------------
     // Change Password API
     // --------------------------------------
@@ -28,29 +35,51 @@ public class PasswordController {
             @RequestHeader("Authorization") String authHeader,
             @RequestBody ChangePasswordRequest request
     ) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "Missing or invalid token"));
+        }
+
         String token = authHeader.replace("Bearer ", "");
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("status", "error", "message", "Invalid user"));
-        }
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        // Check old password
-        if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("status", "error", "message", "Old password is incorrect"));
+                    .body(Map.of("success", false, "message", "Invalid user"));
         }
 
-        // Update password
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (request.getOldPassword() == null || request.getNewPassword() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Password fields cannot be empty"));
+        }
+
+        if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Old password is incorrect"));
+        }
+
+        if (encoder.matches(request.getNewPassword(), user.getPassword())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "New password must be different from old password"));
+        }
+
+        if (!isStrongPassword(request.getNewPassword())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false,
+                            "message", "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."));
+        }
+
         user.setPassword(encoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of(
-                "status", "success",
+                "success", true,
                 "message", "Password changed successfully"
         ));
     }
+
 
 }

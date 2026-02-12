@@ -26,6 +26,14 @@ public class RegisterController {
     private boolean isValidPhone(String phone) {
         return phone != null && phone.matches("^\\+?\\d{7,15}$");
     }
+    private boolean isStrongPassword(String password) {
+        return password != null &&
+                password.length() >= 8 &&
+                password.matches(".*[A-Z].*") &&      // at least 1 uppercase
+                password.matches(".*[a-z].*") &&      // at least 1 lowercase
+                password.matches(".*\\d.*") &&        // at least 1 digit
+                password.matches(".*[@$!%*?&].*");    // at least 1 special character
+    }
     @PostMapping("/register")
     public ResponseEntity<?> postSignup(@RequestBody User u) throws IOException {
         System.out.println("caliningin");
@@ -37,15 +45,20 @@ public class RegisterController {
         }
         Optional<User> existingUserByPhone = uRepo.findByPhoneNumber(u.getPhoneNumber());
         if (existingUserByPhone.isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Phone Number already signed up"));
+            return ResponseEntity.badRequest().body(Map.of("status","error","message", "Phone Number already registered"));
         }
 
 
         Optional<User> existingUser = uRepo.findByEmail(u.getEmail());
         if (existingUser.isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email already signed up"));
+            return ResponseEntity.badRequest().body(Map.of("status","error","message",  "Email already signed up"));
         }
-
+        if (!isStrongPassword(u.getPassword())) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
+            ));
+        }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         u.setPassword(encoder.encode(u.getPassword()));
         String verificationToken = UUID.randomUUID().toString();

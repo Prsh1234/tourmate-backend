@@ -56,6 +56,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             user.setLastName(lastName);
             user.setPassword(null); // Google login = no password
             user.setProfilePic(profilePicBytes);
+            user.setEnabled(true);
 
             userRepository.save(user);
         } else {

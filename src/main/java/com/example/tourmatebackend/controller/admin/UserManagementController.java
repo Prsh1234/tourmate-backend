@@ -151,9 +151,10 @@ public class UserManagementController {
         User requester = extractUserFromToken(authHeader);
         if (!isAdmin(requester)) return unauthorized();
 
-        List<Guide> guideList = guideRepository.findByStatus(GuideStatus.APPROVED)
-                .stream()
-                .collect(Collectors.toList());
+//        List<Guide> guideList = guideRepository.findByStatus(GuideStatus.APPROVED)
+//                .stream()
+//                .collect(Collectors.toList());
+        List<Guide> guideList = guideRepository.findAll();
 
         List<GuideManagementResponseDTO> dtoList = guideList.stream().map(guide -> {
 
@@ -214,11 +215,7 @@ public class UserManagementController {
             );
         }
         guideRepository.save(guide);
-        notificationService.createNotification(
-                guide.getUser().getId(),
-                "Suspension",
-                "You have been suspended."
-        );
+
         return ResponseEntity.ok(
                 Map.of(
                         "status", "success",
