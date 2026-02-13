@@ -1,4 +1,5 @@
 package com.example.tourmatebackend.controller.user;
+import com.example.tourmatebackend.states.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.tourmatebackend.dto.guideRegistration.GuideRegisterRequestDTO;
 import com.example.tourmatebackend.dto.guideRegistration.GuideRegisterResponseDTO;
@@ -77,7 +78,12 @@ public class GuideRegisterController {
                         "message", "Access denied!"
                 ));
             }
-
+            if(tokenUser.getRole().equals(Role.ADMIN)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                        "status", "error",
+                        "message", "Admin cannot become a guide!"
+                ));
+            }
             // -----------------------------
             // Prevent duplicate registration
             // -----------------------------

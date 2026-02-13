@@ -16,7 +16,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user")
 public class PasswordController {
-
     @Autowired private UserRepository userRepository;
     @Autowired private JwtUtil jwtUtil;
     private boolean isStrongPassword(String password) {
@@ -51,21 +50,33 @@ public class PasswordController {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        if (request.getOldPassword() == null || request.getNewPassword() == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "Password fields cannot be empty"));
+        // If user has a password (normal account)
+        if (user.getPassword() != null) {
+            if (request.getOldPassword() == null || request.getNewPassword() == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Password fields cannot be empty"));
+            }
+
+            if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Old password is incorrect"));
+            }
+
+            if (encoder.matches(request.getNewPassword(), user.getPassword())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "New password must be different from old password"));
+            }
+
+        } else {
+            // Google login / no password account
+            if (request.getNewPassword() == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "New password cannot be empty"));
+            }
+            // skip old password check
         }
 
-        if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "Old password is incorrect"));
-        }
-
-        if (encoder.matches(request.getNewPassword(), user.getPassword())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "New password must be different from old password"));
-        }
-
+        // Check new password strength
         if (!isStrongPassword(request.getNewPassword())) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false,

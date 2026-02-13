@@ -36,22 +36,27 @@ public class AdminService {
         AdminDashboardDTO stats = new AdminDashboardDTO();
 
         // total counts
-        long totalTravelers = userRepo.countByRole(Role.TRAVELLER);
+        long totalTravelersOnly = userRepo.countByRole(Role.TRAVELLER);
         long totalGuides = guideRepo.countByStatus(GuideStatus.APPROVED);
+
+        // total travelers now includes guides
+        long totalTravelers = totalTravelersOnly + totalGuides;
+
         long totalBookings = bookingRepo.count();
         double totalRevenue = Optional.ofNullable(
-                bookingRepo.sumRevenueSince(LocalDateTime.of(2000,1,1,0,0))
+                bookingRepo.sumRevenueSince(LocalDateTime.of(2000, 1, 1, 0, 0))
         ).orElse(0.0);
+
         // counts last week for percentage
         LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-        long travelersLastWeek = userRepo
-                .countByRoleAndJoinedAfter(Role.TRAVELLER, lastWeek.toLocalDate());
-
+        long travelersLastWeek = userRepo.countByRoleAndJoinedAfter(Role.TRAVELLER, lastWeek.toLocalDate());
         long guidesLastWeek = guideRepo.countByJoinedAfter(lastWeek.toLocalDate());
-        long bookingsLastWeek = bookingRepo.countByBookingDateAfter(lastWeek);
-        Double revenueLastWeek = Optional.ofNullable(bookingRepo.sumRevenueSince(lastWeek)).orElse(0.0);;
 
-        if (revenueLastWeek == null) revenueLastWeek = 0.0;
+        // include guides in last week travelers
+        long totalTravelersLastWeek = travelersLastWeek + guidesLastWeek;
+
+        long bookingsLastWeek = bookingRepo.countByBookingDateAfter(lastWeek);
+        Double revenueLastWeek = Optional.ofNullable(bookingRepo.sumRevenueSince(lastWeek)).orElse(0.0);
 
         stats.setTotalTravelers(totalTravelers);
         stats.setActiveGuides(totalGuides);
@@ -59,17 +64,15 @@ public class AdminService {
         stats.setRevenue(totalRevenue);
 
         // percentage change calculation
-        long previousTravelers = totalTravelers - travelersLastWeek;
-
-        stats.setTravelersChange(
-                calcPercentageChange(travelersLastWeek, previousTravelers)
-        );
+        long previousTravelers = totalTravelers - totalTravelersLastWeek;
+        stats.setTravelersChange(calcPercentageChange(totalTravelersLastWeek, previousTravelers));
         stats.setGuidesChange(calcPercentageChange(totalGuides - guidesLastWeek, guidesLastWeek));
         stats.setBookingsChange(calcPercentageChange(totalBookings - bookingsLastWeek, bookingsLastWeek));
         stats.setRevenueChange(calcPercentageChange(totalRevenue - revenueLastWeek, revenueLastWeek));
 
         return stats;
     }
+
     public List<RecentBookingDTO> getRecentBookings() {
 
         return bookingRepo

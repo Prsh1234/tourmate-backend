@@ -5,6 +5,7 @@ import com.example.tourmatebackend.dto.guide.TransactionDTO;
 import com.example.tourmatebackend.model.TourBooking;
 import com.example.tourmatebackend.repository.TourBookingRepository;
 import com.example.tourmatebackend.states.BookingStatus;
+import com.example.tourmatebackend.states.PaymentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,8 +54,12 @@ public class EarningsService {
 
         List<BookingStatus> validStatuses = List.of(BookingStatus.COMPLETED, BookingStatus.APPROVED);
 
+
         List<TourBooking> tourBookings = tourBookingRepository
-                .findTop10ByGuideIdAndStatusInOrderByBookingDateDesc(guideId, validStatuses);
+                .findTop10ByTour_Guide_IdAndPaymentStatusOrderByPaymentDateDesc(
+                        guideId,
+                        PaymentStatus.PAID
+                );
         List<TransactionDTO> transactionDTOs = tourBookings.stream()
                 .map(this::mapTourBooking)
                 .sorted(Comparator.comparing(TransactionDTO::getDate).reversed())
